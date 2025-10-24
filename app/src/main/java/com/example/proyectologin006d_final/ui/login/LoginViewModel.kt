@@ -1,8 +1,6 @@
 package com.example.proyectologin006d_final.ui.login
 
-
 import androidx.lifecycle.ViewModel
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,19 +13,29 @@ class LoginViewModel(
     var uiState by mutableStateOf(LoginUiState())
         private set
 
-    fun onUsernameChange(value: String) {
-        uiState = uiState.copy(username = value, error = null)
+    fun onCorreoChange(value: String) {
+        uiState = uiState.copy(correo = value, mensaje = "")
     }
 
-    fun onPasswordChange(value: String) {
-        uiState = uiState.copy(password = value, error = null)
+    fun onClaveChange(value: String) {
+        uiState = uiState.copy(clave = value, mensaje = "")
     }
 
-    fun submit(onSuccess: (String) -> Unit) {
-        uiState = uiState.copy(isLoading = true, error = null)
-        val ok = repo.login(uiState.username.trim(), uiState.password)
+    fun submit(onSuccess: (String, String) -> Unit) {
+        uiState = uiState.copy(isLoading = true, mensaje = "")
+
+        val user = repo.login(
+            uiState.correo.trim(),
+            uiState.clave
+        )
+
         uiState = uiState.copy(isLoading = false)
-        if (ok) onSuccess(uiState.username.trim())
-        else uiState = uiState.copy(error = "Credenciales inválidas")
+
+        if (user != null) {
+            // Si se encuentra usuario, pasa rol y nombre
+            onSuccess(user.role, user.nombre)
+        } else {
+            uiState = uiState.copy(mensaje = "Correo o clave incorrectos")
+        }
     }
 }
