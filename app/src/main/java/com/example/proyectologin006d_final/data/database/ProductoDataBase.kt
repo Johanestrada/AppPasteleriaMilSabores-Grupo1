@@ -7,31 +7,28 @@ import androidx.room.RoomDatabase
 import com.example.proyectologin006d_final.data.dao.ProductoDao
 import com.example.proyectologin006d_final.data.model.Producto
 
-@Database(
-    entities = [Producto::class],
-    version=1,
-    exportSchema = false // Agregar para evitar el warning
-)
-abstract class ProductoDatabase: RoomDatabase(){
+
+
+//En esta capa  donde se conecta_todo lo relacionado con la base de datos
+@Database(entities = [Producto::class], version = 1)
+abstract class ProductoDatabase : RoomDatabase() {
+
     abstract fun productoDao(): ProductoDao
 
-    companion object{
+    companion object {
         @Volatile
-        private var INSTANCE: ProductoDatabase?=null
-        fun getDatabase(context: Context): ProductoDatabase{
-            return INSTANCE?: synchronized(this){
-                val instance= Room.databaseBuilder(
+        private var INSTANCE: ProductoDatabase? = null
+
+        fun getDatabase(context: Context): ProductoDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
                     context.applicationContext,
                     ProductoDatabase::class.java,
                     "producto_database"
-                ).build() // fin Room
-                INSTANCE=instance
+                ).build()
+                INSTANCE = instance
                 instance
-
-            }//fin return
-        }// fin getDatabase
-
-    }// fin companion
-
-
-}// fin abstract
+            }
+        }
+    }
+}

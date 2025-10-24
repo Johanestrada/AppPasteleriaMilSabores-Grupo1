@@ -9,10 +9,21 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 
 interface ProductoDao{
-
+    // SUPUESTAMENTE EN ESTA CAPA ES DONDE SE CONECTA MI MODELO CON LA BASE DE DATOS
+     // A LA CUAL SOLO RECUERDO QUE PIDIERON ESTAS FUNCIONES DE MOMENTO
     @Insert
     suspend fun insertarProducto(producto: Producto)
 
     @Query("SELECT * FROM productos")
     fun obtenerProductos(): Flow<List<Producto>>
+
+    @Query("SELECT * FROM productos WHERE id = :id")
+    fun obtenerProductoPorId(id: Int): Flow<Producto>
+
+    @Query("DELETE FROM productos WHERE id = :id")
+    suspend fun eliminarProductoPorId(id: Int)
+
+    @Query("DELETE FROM productos")
+    suspend fun eliminarTodosLosProductos()
+
 }
