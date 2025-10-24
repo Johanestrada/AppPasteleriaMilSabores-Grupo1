@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -57,9 +58,9 @@ fun LoginScreen(   navController: NavController,
 
     // darkColorScheme  es una funcion de material3 que define un color oscuro
     val ColorScheme = darkColorScheme(
-        primary= Color(0xFF98222E),
+        primary= Color(0xFFFFB6C1),
         onPrimary = Color.White,
-        onSurface = Color(0xFF333333), //Gris
+        onSurface = Color(0xFFFFB6C1), //Gris
     ) // fin dark
 
 
@@ -155,18 +156,17 @@ fun LoginScreen(   navController: NavController,
 
 
                 OutlinedTextField(
-                    value = state.username,
-                    onValueChange = vm::onUsernameChange,
-                    label = { Text("Usuario") },
+                    value = state.correo,
+                    onValueChange = vm::onCorreoChange,
+                    label = { Text("Correo") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(0.95f)
-                ) // fin user
-
+                )
 
                 OutlinedTextField(
-                    value = state.password,
-                    onValueChange = vm::onPasswordChange,
-                    label = { Text("Contraseña") },
+                    value = state.clave,
+                    onValueChange = vm::onClaveChange,
+                    label = { Text("Clave") },
                     singleLine = true,
                     visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -175,45 +175,37 @@ fun LoginScreen(   navController: NavController,
                         }
                     },
                     modifier = Modifier.fillMaxWidth(0.95f)
-                ) // fin passw
+                )
 
-
-                if (state.error != null) {
+                if (state.mensaje.isNotEmpty()) {
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = state.error ?: "",
+                        text = state.mensaje,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
-
-// agregar un espacio entre la imagen y el boton
-
-                Spacer(modifier = Modifier.height(66.dp))
-
-                Button(onClick = {/* accion futura*/
-                    vm.submit { user ->
-                       // navController.navigate("muestraDatos/$user")
-                        navController.navigate("DrawerMenu/$user")
-// hasta aqui fue la clase anterior
-
-                        { // inicio navigate
-                            popUpTo("login"){inclusive = true} // no volver al login con Back
-                            launchSingleTop = true
-                        }// fin navigate
-                    }//fin submit
-
-                }, //  fin onClick
-
-                    enabled=!state.isLoading,
+                Button(
+                    onClick = {
+                        vm.submit { rol, nombre ->
+                            if (rol == "admin") {
+                                navController.navigate("admin")
+                            } else {
+                                navController.navigate("usuario/$nombre")
+                            }
+                        }
+                    },
+                    enabled = !state.isLoading,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFB6C1), // Rosa fuerte (Hot Pink)
+                        contentColor = Color.White          // Texto blanco
+                    ),
                     modifier = Modifier.fillMaxWidth(0.6f)
-                ) // fin Button
-                { // texto Button
-
-                    //   Text("Presioname")
+                ) {
                     Text(if (state.isLoading) "Validando..." else "Iniciar sesión")
-                } // fin texto Button
+                }
+
 
 
             }// fin Contenido
