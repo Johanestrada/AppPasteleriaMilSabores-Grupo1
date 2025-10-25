@@ -1,37 +1,15 @@
 package com.example.proyectologin006d_final.ui.login
 
-
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import com.example.proyectologin006d_final.R
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -41,120 +19,78 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.proyectologin006d_final.ui.login.LoginUiState
-import com.example.proyectologin006d_final.ui.login.LoginViewModel
-
+import com.example.proyectologin006d_final.R
 
 @OptIn(ExperimentalMaterial3Api::class)
-// Permite usar funciones Material 3 qe son experimentales
-@Composable  // Genera Interfz Garfica
-
-fun LoginScreen(   navController: NavController,
-                   vm: LoginViewModel = viewModel()
+@Composable
+fun LoginScreen(
+    navController: NavController,
+    vm: LoginViewModel = viewModel()
 ) {
     val state = vm.uiState
     var showPass by remember { mutableStateOf(false) }
 
+    // 🎨 Paleta de colores pastel
+    val pastelBackground = Color(0xFFFFF8F0)
+    val pastelAccent = Color(0xFFFFCCBC)
+    val pastelText = Color(0xFF5D4037)
 
-    // darkColorScheme  es una funcion de material3 que define un color oscuro
-    val ColorScheme = darkColorScheme(
-        primary= Color(0xFFFFB6C1),
-        onPrimary = Color.White,
-        onSurface = Color(0xFFFFB6C1), //Gris
-    ) // fin dark
-
-
+    // 🌈 Aplicar tema personalizado
     MaterialTheme(
-        colorScheme = ColorScheme
-    ){ // inicio Aplicar Material
-
-
-
-        Scaffold (
-            // Crea Estuctra basica de la pantalla Se define topBar, BottomBar
+        colorScheme = lightColorScheme(
+            primary = pastelAccent,
+            onPrimary = Color.White,
+            surface = pastelBackground,
+            onSurface = pastelText
+        )
+    ) {
+        Scaffold(
             topBar = {
-                TopAppBar(title = {Text("Mi Primer App",
-                    color =MaterialTheme.colorScheme.onPrimary,
-                )})
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            "Pastelería App",
+                            color = MaterialTheme.colorScheme.onPrimary
 
-                // Crea un AppBar con un titulo
-
-            }// fin topBar
-        ) // fin Scaff
-        {// Inicio Inner
-                innerPadding ->
-            // Representa el espacio interno para que no choque con el topBar
-
-            Column (  //   Colaca los elementos de la Ui
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = pastelAccent)
+                )
+            },
+            containerColor = pastelBackground
+        ) { innerPadding ->
+            Column(
                 modifier = Modifier
-                    .padding( innerPadding)
-                    // Evita que quede oculto
-                    .fillMaxSize() // Hace que la columnna tome el todo el tamaño
-                    .padding(16.dp)
-                    .background(Color(0xFFF0F0F0)), // gris Claro
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally  // Centra horizontalmente
-                //Define  que elementos dentro la columna estaran separados por 20.dp
-            )// fin column
-            {// inicio Contenido
-                Text(text="Bienvenido !",
-                    style= MaterialTheme.typography.headlineMedium,
-                    color=MaterialTheme.colorScheme.primary
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                //  Título de bienvenida
+                Text(
+                    text = "Bienvenido ",
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = pastelText
+                    )
+                )
 
+                Spacer(modifier = Modifier.height(16.dp))
 
-                ) // Muestra un texto simple en la pantalla
-
-
-
-
-                Image(  // insertar una imagen en la interfaz
-                    painter= painterResource(id = R.drawable.logoduoc),
+                //  Logo
+                Image(
+                    painter = painterResource(id = R.drawable.logoduoc),
                     contentDescription = "Logo App",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(150.dp),
+                        .height(140.dp),
                     contentScale = ContentScale.Fit
-                    // Ajusta la imagen para que encaje dentro del espacio
+                )
 
-                ) // Fin Image
+                Spacer(modifier = Modifier.height(32.dp))
 
-
-// agregar un espacio entre la imagen y el boton
-
-                Spacer(modifier = Modifier.height(66.dp))
-
-
-
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                )// Fin Row
-                {// Aplica row
-                    Text("texto uno",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )// fin texto 1
-
-
-                    Text("texto dos",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )// fin texto 1
-
-
-                } // fin Aplica row
-
-
-
+                //  Campo de correo
                 OutlinedTextField(
                     value = state.correo,
                     onValueChange = vm::onCorreoChange,
@@ -163,10 +99,11 @@ fun LoginScreen(   navController: NavController,
                     modifier = Modifier.fillMaxWidth(0.95f)
                 )
 
+                //  Botton el cual deja mostrar si acaso el texto de la contraseña sea visible
                 OutlinedTextField(
                     value = state.clave,
                     onValueChange = vm::onClaveChange,
-                    label = { Text("Clave") },
+                    label = { Text("Contraseña") },
                     singleLine = true,
                     visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -177,14 +114,17 @@ fun LoginScreen(   navController: NavController,
                     modifier = Modifier.fillMaxWidth(0.95f)
                 )
 
+                // Si llega a existir un error se deberia de enviar un mensaje
                 if (state.mensaje.isNotEmpty()) {
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = state.mensaje,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.Red,
                         fontWeight = FontWeight.Bold
                     )
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = {
@@ -197,34 +137,35 @@ fun LoginScreen(   navController: NavController,
                         }
                     },
                     enabled = !state.isLoading,
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFB6C1), // Rosa fuerte (Hot Pink)
-                        contentColor = Color.White          // Texto blanco
+                        containerColor = pastelAccent,
+                        contentColor = pastelText
                     ),
-                    modifier = Modifier.fillMaxWidth(0.6f)
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(50.dp)
                 ) {
                     Text(if (state.isLoading) "Validando..." else "Iniciar sesión")
                 }
 
+                Spacer(modifier = Modifier.height(12.dp))
 
-
-            }// fin Contenido
-
-        } // Fin inner
-
-
-    } // fin Aplicar Material
-}// Fin HomeScreen
-
+                //  Enlace a registro
+                TextButton(onClick = {
+                    navController.navigate("register")
+                }) {
+                    Text("¿No tienes cuenta? Regístrate", color = pastelText)
+                }
+            }
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    // Crear un navController de manera ficticia para fines de la vista previa
     val navController = rememberNavController()
-
-    // Puedes usar un ViewModel simulado aquí si no tienes acceso a uno real
-    val vm = LoginViewModel() // Suponiendo que LoginViewModel está correctamente configurado para la vista previa
-
+    val vm = LoginViewModel()
     LoginScreen(navController = navController, vm = vm)
 }
