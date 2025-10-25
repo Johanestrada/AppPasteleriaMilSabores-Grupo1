@@ -108,7 +108,7 @@ fun DrawerMenu(username: String, navController: NavController) {
 
         // 🔷 Pie de página
         Text(
-            text = "🍰 @ 2025 Pastelería App",
+            text = " @ 2025 Pasteleria 1000 Sabores",
             style = MaterialTheme.typography.bodySmall,
             color = Color.Gray,
             modifier = Modifier

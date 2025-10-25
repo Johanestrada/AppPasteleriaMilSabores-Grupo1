@@ -1,11 +1,30 @@
 package com.example.proyectologin006d_final.ui.login
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -128,12 +147,10 @@ fun LoginScreen(
 
                 Button(
                     onClick = {
-                        vm.submit { rol, nombre ->
-                            if (rol == "admin") {
-                                navController.navigate("admin")
-                            } else {
-                                navController.navigate("usuario/$nombre")
-                            }
+                        vm.submit { _, nombre ->
+                            // Para cualquier login exitoso, navegamos a la pantalla del menú,
+                            // pasando el nombre de usuario que es lo que la ruta espera.
+                            navController.navigate("DrawerMenu/$nombre")
                         }
                     },
                     enabled = !state.isLoading,
@@ -153,7 +170,8 @@ fun LoginScreen(
 
                 //  Enlace a registro
                 TextButton(onClick = {
-                    navController.navigate("register")
+                    // A futuro, esta ruta "register" deberá existir en AppNav.kt
+                    // navController.navigate("register")
                 }) {
                     Text("¿No tienes cuenta? Regístrate", color = pastelText)
                 }
@@ -166,6 +184,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     val navController = rememberNavController()
-    val vm = LoginViewModel()
-    LoginScreen(navController = navController, vm = vm)
+    // No se instancia el ViewModel manualmente, se deja que el sistema lo provea.
+    LoginScreen(navController = navController)
 }
