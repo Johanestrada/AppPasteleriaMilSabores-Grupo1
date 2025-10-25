@@ -99,7 +99,7 @@ fun LoginScreen(
 
                 //  Logo
                 Image(
-                    painter = painterResource(id = R.drawable.logoduoc),
+                    painter = painterResource(id = R.drawable.logoduoc2),
                     contentDescription = "Logo App",
                     modifier = Modifier
                         .fillMaxWidth()
