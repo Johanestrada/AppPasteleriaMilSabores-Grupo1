@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.proyectologin006d_final.ui.login.LoginScreen
+import com.example.proyectologin006d_final.ui.registro.RegistroScreen
 import com.example.proyectologin006d_final.view.DrawerMenu
 import com.example.proyectologin006d_final.view.ProductoFormScreen
 
@@ -15,7 +16,7 @@ fun AppNav() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "login") {
-        composable("login") {
+        composable(route = "login") {
             LoginScreen(navController = navController)
         }
 
@@ -31,12 +32,14 @@ fun AppNav() {
             DrawerMenu(username = username, navController = navController)
         }
 
-        // --- RUTA CORREGIDA PARA ProductoFormScreen ---
-        // Ya no necesita recibir parámetros.
+        // --- Pantalla de Formulario de Producto ---
         composable(route = "ProductoFormScreen") {
-            // Se llama a la pantalla sin parámetros, ya que ahora es un
-            // formulario para crear productos nuevos.
             ProductoFormScreen()
+        }
+
+        // --- Pantalla de Registro ---
+        composable(route = "registro") {
+            RegistroScreen(navController = navController)
         }
     }
 }

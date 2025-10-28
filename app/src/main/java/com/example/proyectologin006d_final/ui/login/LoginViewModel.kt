@@ -1,14 +1,25 @@
+// Archivo: ui/login/LoginViewModel.kt
 package com.example.proyectologin006d_final.ui.login
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.example.proyectologin006d_final.data.repository.AuthRepository
+import androidx.lifecycle.viewModelScope
+import com.example.proyectologin006d_final.data.database.AppDataBase
+import com.example.proyectologin006d_final.data.repository.UsuarioRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class LoginViewModel(
-    private val repo: AuthRepository = AuthRepository()
-) : ViewModel() {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository: UsuarioRepository
+
+    init {
+        val usuarioDao = AppDataBase.getDatabase(application).usuarioDao()
+        repository = UsuarioRepository(usuarioDao)
+    }
 
     var uiState by mutableStateOf(LoginUiState())
         private set
@@ -21,21 +32,25 @@ class LoginViewModel(
         uiState = uiState.copy(clave = value, mensaje = "")
     }
 
-    fun submit(onSuccess: (String, String) -> Unit) {
+    // ✨ LÓGICA DE LOGIN CON ROOM ✨
+    fun submit(onSuccess: (String) -> Unit) {
         uiState = uiState.copy(isLoading = true, mensaje = "")
 
-        val user = repo.login(
-            uiState.correo.trim(),
-            uiState.clave
-        )
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = repository.buscarUsuario(
+                uiState.correo.trim(),
+                uiState.clave
+            )
 
-        uiState = uiState.copy(isLoading = false)
-
-        if (user != null) {
-            // Si se encuentra usuario, pasa rol y nombre
-            onSuccess(user.role, user.nombre)
-        } else {
-            uiState = uiState.copy(mensaje = "Correo o clave incorrectos")
+            launch(Dispatchers.Main) {
+                uiState = uiState.copy(isLoading = false)
+                if (user != null) {
+                    // Si encontramos el usuario, navegamos. Pasamos el nombre completo.
+                    onSuccess(user.nombreCompleto)
+                } else {
+                    uiState = uiState.copy(mensaje = "Correo o clave incorrectos")
+                }
+            }
         }
     }
 }

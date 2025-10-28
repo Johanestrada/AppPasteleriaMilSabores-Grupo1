@@ -1,40 +1,28 @@
+// Archivo: ui/login/LoginScreen.kt
+
 package com.example.proyectologin006d_final.ui.login
 
+import android.app.Application // ✨ Importación necesaria
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -43,24 +31,27 @@ import com.example.proyectologin006d_final.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    navController: NavController,
-    vm: LoginViewModel = viewModel()
+    navController: NavController
 ) {
+    // ✨ CORRECCIÓN: Instanciación del ViewModel que necesita 'Application'
+    val context = LocalContext.current
+    val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(context.applicationContext as Application)
+    val vm: LoginViewModel = viewModel(factory = factory)
+
     val state = vm.uiState
     var showPass by remember { mutableStateOf(false) }
 
-    // 🎨 Paleta de colores pastel
     val pastelBackground = Color(0xFFFFF8F0)
     val pastelAccent = Color(0xFFFFCCBC)
     val pastelText = Color(0xFF5D4037)
 
-    // 🌈 Aplicar tema personalizado
     MaterialTheme(
         colorScheme = lightColorScheme(
             primary = pastelAccent,
             onPrimary = Color.White,
             surface = pastelBackground,
-            onSurface = pastelText
+            onSurface = pastelText,
+            background = pastelBackground // Importante definir el background
         )
     ) {
         Scaffold(
@@ -70,13 +61,11 @@ fun LoginScreen(
                         Text(
                             "Pastelería App",
                             color = MaterialTheme.colorScheme.onPrimary
-
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = pastelAccent)
                 )
-            },
-            containerColor = pastelBackground
+            }
         ) { innerPadding ->
             Column(
                 modifier = Modifier
@@ -86,9 +75,8 @@ fun LoginScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                //  Título de bienvenida
                 Text(
-                    text = "Bienvenido ",
+                    text = "Bienvenido",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = pastelText
@@ -97,7 +85,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                //  Logo
                 Image(
                     painter = painterResource(id = R.drawable.logoduoc2),
                     contentDescription = "Logo App",
@@ -109,7 +96,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                //  Campo de correo
                 OutlinedTextField(
                     value = state.correo,
                     onValueChange = vm::onCorreoChange,
@@ -118,7 +104,6 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(0.95f)
                 )
 
-                //  Botton el cual deja mostrar si acaso el texto de la contraseña sea visible
                 OutlinedTextField(
                     value = state.clave,
                     onValueChange = vm::onClaveChange,
@@ -133,7 +118,6 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(0.95f)
                 )
 
-                // Si llega a existir un error se deberia de enviar un mensaje
                 if (state.mensaje.isNotEmpty()) {
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -147,10 +131,9 @@ fun LoginScreen(
 
                 Button(
                     onClick = {
-                        vm.submit { _, nombre ->
-                            // Para cualquier login exitoso, navegamos a la pantalla del menú,
-                            // pasando el nombre de usuario que es lo que la ruta espera.
-                            navController.navigate("DrawerMenu/$nombre")
+                        // ✨ CORRECCIÓN DE LA LAMBDA ✨
+                        vm.submit { nombreUsuario ->
+                            navController.navigate("DrawerMenu/$nombreUsuario")
                         }
                     },
                     enabled = !state.isLoading,
@@ -168,13 +151,14 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                //  Enlace a registro
-                TextButton(onClick = {
-                    // A futuro, esta ruta "register" deberá existir en AppNav.kt
-                    // navController.navigate("register")
-                }) {
-                    Text("¿No tienes cuenta? Regístrate", color = pastelText)
-                }
+                Text(
+                    text = "Registrarse",
+                    modifier = Modifier.clickable {
+                        navController.navigate("registro")
+                    },
+                    color = Color.Blue,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
@@ -184,6 +168,5 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     val navController = rememberNavController()
-    // No se instancia el ViewModel manualmente, se deja que el sistema lo provea.
     LoginScreen(navController = navController)
 }

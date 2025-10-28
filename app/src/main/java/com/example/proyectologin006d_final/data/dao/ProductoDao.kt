@@ -9,8 +9,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 
 interface ProductoDao{
-    // SUPUESTAMENTE EN ESTA CAPA ES DONDE SE CONECTA MI MODELO CON LA BASE DE DATOS
-     // A LA CUAL SOLO RECUERDO QUE PIDIERON ESTAS FUNCIONES DE MOMENTO
     @Insert
     suspend fun insertarProducto(producto: Producto)
 
