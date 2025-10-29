@@ -19,17 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.proyectologin006d_final.R // ✨ ¡Asegúrate de que este import sea correcto para tu proyecto!
+import com.example.proyectologin006d_final.util.SessionManager
 
 @Composable
-fun DrawerMenu(username: String, navController: NavController) {
+fun HomeScreen(username: String, navController: NavController) {
     val pastelBackground = Color(0xFFFFF8F0)
     val pastelCard = Color(0xFFFFE0E0)
     val pastelText = Color(0xFF5D4037)
+    val context = LocalContext.current // Obtenemos el contexto actual
 
     // Usamos LazyColumn como el contenedor principal para que TODA la pantalla se desplace
     // si el contenido es más grande que la pantalla.
@@ -96,8 +99,7 @@ fun DrawerMenu(username: String, navController: NavController) {
                         .fillMaxSize()
                         .padding(horizontal = 16.dp)
                         .clickable {
-                            val encodedNombre = Uri.encode(nombre)
-                            navController.navigate("ProductoFormScreen/$encodedNombre/$precio")
+                            navController.navigate("ProductoFormScreen")
                         }
                 ) {
                     Icon(
@@ -121,6 +123,24 @@ fun DrawerMenu(username: String, navController: NavController) {
                         )
                     }
                 }
+            }
+        }
+
+        // --- 🔷 Botón de Cerrar Sesión ---
+        item {
+            Spacer(modifier = Modifier.height(16.dp)) // Un poco de espacio
+            TextButton(
+                onClick = {
+                    // Limpiamos la sesión
+                    SessionManager.clearSession(context)
+                    // Navegamos al login y limpiamos el backstack
+                    navController.navigate("login") {
+                        popUpTo(0) // Limpia todas las pantallas anteriores
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            ) {
+                Text("Cerrar Sesión", color = Color.Red)
             }
         }
 

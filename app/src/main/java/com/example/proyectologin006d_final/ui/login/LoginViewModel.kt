@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.proyectologin006d_final.data.database.AppDataBase
 import com.example.proyectologin006d_final.data.repository.UsuarioRepository
+import com.example.proyectologin006d_final.util.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -45,6 +46,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             launch(Dispatchers.Main) {
                 uiState = uiState.copy(isLoading = false)
                 if (user != null) {
+                    // Guardamos la sesión del usuario
+                    SessionManager.saveSession(getApplication(), user.nombreCompleto)
                     // Si encontramos el usuario, navegamos. Pasamos el nombre completo.
                     onSuccess(user.nombreCompleto)
                 } else {

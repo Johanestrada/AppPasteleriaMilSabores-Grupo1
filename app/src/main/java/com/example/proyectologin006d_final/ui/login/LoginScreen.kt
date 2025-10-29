@@ -33,7 +33,6 @@ import com.example.proyectologin006d_final.R
 fun LoginScreen(
     navController: NavController
 ) {
-    // ✨ CORRECCIÓN: Instanciación del ViewModel que necesita 'Application'
     val context = LocalContext.current
     val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(context.applicationContext as Application)
     val vm: LoginViewModel = viewModel(factory = factory)
@@ -131,9 +130,10 @@ fun LoginScreen(
 
                 Button(
                     onClick = {
-                        // ✨ CORRECCIÓN DE LA LAMBDA ✨
                         vm.submit { nombreUsuario ->
-                            navController.navigate("DrawerMenu/$nombreUsuario")
+                            navController.navigate("home/$nombreUsuario") {
+                                popUpTo("login") { inclusive = true } // Limpia el backstack
+                            }
                         }
                     },
                     enabled = !state.isLoading,
