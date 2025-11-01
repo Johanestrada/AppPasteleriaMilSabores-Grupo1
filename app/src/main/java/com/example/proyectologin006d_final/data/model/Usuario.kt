@@ -15,6 +15,7 @@ data class Usuario(
     val contrasena: String,
     val region: String,
     val comuna: String,
+    val fotoUri: String? = null,
 
     // --- Campos Opcionales del Formulario ---
     val telefono: String?,

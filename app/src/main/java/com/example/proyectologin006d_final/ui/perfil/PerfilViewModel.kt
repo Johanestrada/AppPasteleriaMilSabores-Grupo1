@@ -1,6 +1,7 @@
 package com.example.proyectologin006d_final.ui.perfil
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyectologin006d_final.data.database.AppDataBase
@@ -19,6 +20,9 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
     private val _user = MutableStateFlow<Usuario?>(null)
     val user: StateFlow<Usuario?> = _user.asStateFlow()
 
+    private val _photoUri = MutableStateFlow<String?>(null)
+    val photoUri: StateFlow<String?> = _photoUri.asStateFlow()
+
     init {
         val usuarioDao = AppDataBase.getDatabase(application).usuarioDao()
         repository = UsuarioRepository(usuarioDao)
@@ -29,9 +33,21 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val userEmail = SessionManager.getUserEmail(getApplication())
             userEmail?.let {
-                repository.usuarioDao.obtenerUsuarioPorCorreo(it).collect {
-                    _user.value = it
+                repository.usuarioDao.obtenerUsuarioPorCorreo(it).collect { usuario ->
+                    _user.value = usuario
+                    _photoUri.value = usuario?.fotoUri
                 }
+            }
+        }
+    }
+
+    fun updatePhotoUri(uri: Uri) {
+        _photoUri.value = uri.toString()
+        viewModelScope.launch {
+            val currentUser = _user.value
+            currentUser?.let {
+                val updatedUser = it.copy(fotoUri = uri.toString())
+                repository.usuarioDao.update(updatedUser)
             }
         }
     }

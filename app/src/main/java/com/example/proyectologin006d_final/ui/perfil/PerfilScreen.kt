@@ -1,9 +1,10 @@
 package com.example.proyectologin006d_final.ui.perfil
 
-// --- IMPORTACIONES (SIMPLIFICADAS) ---
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
@@ -12,94 +13,95 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.proyectologin006d_final.data.database.AppDataBase
+import coil.compose.AsyncImage
+import com.example.proyectologin006d_final.R
 import com.example.proyectologin006d_final.data.model.Usuario
-import com.example.proyectologin006d_final.data.repository.UsuarioRepository
 import com.example.proyectologin006d_final.util.SessionManager
 
-// --- PANTALLA PRINCIPAL (SIMPLIFICADA) ---
 @Composable
 fun PerfilScreen(mainNavController: NavController) {
-    val context = LocalContext.current
-
-    // ✅ La creación del ViewModel con la Factory se mantiene, ¡es la parte clave!
-    val viewModel: PerfilViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val db = AppDataBase.getDatabase(context)
-                val repository = UsuarioRepository(db.usuarioDao())
-                return PerfilViewModel(repository) as T
-            }
-        }
-    )
-
-    // Observamos el estado del usuario. Esto no cambia.
+    val viewModel: PerfilViewModel = viewModel()
     val usuario by viewModel.user.collectAsStateWithLifecycle()
+    val photoUri by viewModel.photoUri.collectAsStateWithLifecycle()
 
-    // --- INTERFAZ DE USUARIO (SIN LÓGICA DE FOTOS) ---
+    val navBackStackEntry = mainNavController.currentBackStackEntry
+    LaunchedEffect(navBackStackEntry) {
+        val uri = navBackStackEntry?.savedStateHandle?.get<Uri>("photo_uri")
+        uri?.let {
+            viewModel.updatePhotoUri(it)
+            navBackStackEntry.savedStateHandle.remove<Uri>("photo_uri")
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFF8F0)), // Fondo pastel
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Cabecera con foto (placeholder) y nombre del usuario.
-        ProfileHeader(usuario = usuario)
+        ProfileHeader(
+            usuario = usuario,
+            photoUri = photoUri,
+            onImageClick = { mainNavController.navigate("tomar_foto") }
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Menú de opciones.
         ProfileMenu()
 
-        // Spacer que empuja el botón de cerrar sesión hacia abajo.
         Spacer(modifier = Modifier.weight(1f))
 
-        // Botón de cerrar sesión.
         LogoutButton(navController = mainNavController)
     }
 }
 
-
-// --- COMPONENTES REUTILIZABLES (SIMPLIFICADOS) ---
-
 @Composable
-fun ProfileHeader(usuario: Usuario?) {
-    // Espacio superior.
+fun ProfileHeader(usuario: Usuario?, photoUri: String?, onImageClick: () -> Unit) {
     Spacer(modifier = Modifier.height(48.dp))
 
-    // ❌ Se eliminó el Box que contenía la lógica de la foto y el menú de edición.
-    // Ahora solo mostramos una imagen estática de placeholder.
-
+    Box(
+        modifier = Modifier
+            .size(120.dp)
+            .clip(CircleShape)
+            .background(Color.LightGray)
+            .clickable(onClick = onImageClick),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = photoUri,
+            contentDescription = "Foto de perfil",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
+            error = painterResource(id = R.drawable.ic_launcher_foreground)
+        )
+    }
 
     Spacer(modifier = Modifier.height(16.dp))
 
-    // Mostramos el nombre del usuario desde el ViewModel.
     Text(
         text = usuario?.nombreCompleto ?: "Cargando nombre...",
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold
     )
 
-    // Mostramos el correo del usuario desde el ViewModel.
     Text(
         text = usuario?.correo ?: "Cargando correo...",
         fontSize = 16.sp,
         color = Color.Gray
     )
 }
-
-// Las funciones ProfileMenu, ProfileMenuItem y LogoutButton no necesitan cambios.
-// Las mantengo aquí para que el archivo esté completo.
 
 @Composable
 fun ProfileMenu() {
