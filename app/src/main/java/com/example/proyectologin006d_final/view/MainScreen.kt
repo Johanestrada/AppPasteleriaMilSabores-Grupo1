@@ -1,5 +1,6 @@
 package com.example.proyectologin006d_final.view
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,13 +13,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -31,33 +36,77 @@ import com.example.proyectologin006d_final.navigation.BottomNavigationBar
 import com.example.proyectologin006d_final.navigation.BottomNavItem
 import com.example.proyectologin006d_final.ui.producto.ProductsScreen
 import com.example.proyectologin006d_final.ui.perfil.PerfilScreen
+import kotlinx.coroutines.delay
 
+// --- 1. PANTALLA PRINCIPAL CON SCAFFOLD Y NAVEGACIÓN ---
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun MainScreen(username: String, mainNavController: NavController) {
+@Composable
+fun MainScreen(username: String, mainNavController: NavController) {
     val bottomNavController = rememberNavController()
+    var searchText by remember { mutableStateOf("") }
 
+    // Usamos Scaffold como el contenedor principal que incluye la TopBar y la BottomBar.
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Hola, $username 👋") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFCCBC)
+            // Barra superior con el buscador y los iconos de acción.
+            TopAppBar(
+                title = {
+                    OutlinedTextField(
+                        value = searchText,
+                        onValueChange = { searchText = it },
+                        placeholder = { Text("Buscar pasteles...") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Icono de búsqueda") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            disabledContainerColor = Color.White,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        ),
+                        singleLine = true
+                    )
+                },
+                actions = {
+                    // Iconos para lista de deseos, carrito y notificaciones.
+                    IconButton(onClick = { /* TODO: Navegar a lista de deseos */ }) {
+                        Icon(Icons.Default.FavoriteBorder, contentDescription = "Lista de Deseos")
+                    }
+                    IconButton(onClick = { /* TODO: Navegar al carrito */ }) {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito de Compras")
+                    }
+                    IconButton(onClick = { /* TODO: Mostrar notificaciones */ }) {
+                        Icon(Icons.Default.NotificationsNone, contentDescription = "Notificaciones")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFFFCCBC) // Color pastel para la barra
                 )
             )
         },
         bottomBar = { BottomNavigationBar(navController = bottomNavController) }
     ) { innerPadding ->
+        // El contenido de las pestañas se muestra aquí, aplicando el padding del Scaffold.
         Box(modifier = Modifier.padding(innerPadding)) {
-            BottomNavGraph(navController = bottomNavController, mainNavController = mainNavController)
+            BottomNavGraph(
+                navController = bottomNavController,
+                mainNavController = mainNavController,
+                username = username
+            )
         }
     }
 }
 
+// --- 2. GRAFO DE NAVEGACIÓN PARA LAS PESTAÑAS (TABS) ---
 @Composable
-fun BottomNavGraph(navController: NavHostController, mainNavController: NavController) {
+fun BottomNavGraph(navController: NavHostController, mainNavController: NavController, username: String) {
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
         composable(BottomNavItem.Home.route) {
-            HomeTabContent(navController = mainNavController)
+            // Pasamos el nombre de usuario a la pestaña de Home.
+            HomeTabContent(navController = mainNavController, username = username)
         }
         composable(BottomNavItem.Productos.route) {
             ProductsScreen()
@@ -67,63 +116,10 @@ fun BottomNavGraph(navController: NavHostController, mainNavController: NavContr
         }
     }
 }
-@Composable
-fun StoreInfoSection(modifier: Modifier = Modifier) {
-    val pastelText = Color(0xFF5D4037)
-    val storeOptions = listOf(
-        Pair(Icons.Default.LocationOn, "Ubicación"),
-        Pair(Icons.Default.Phone, "Llámanos"),
-        Pair(Icons.Default.Share, "Redes")
-    )
 
-    Box(
-        modifier = modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            modifier = Modifier
-                .height(55.dp) // Mantenemos la altura
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.Center, // Usamos Center para que los elementos estén juntos
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            storeOptions.forEachIndexed { index, (icon, text) ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .clickable { /* Lógica futura */ }
-                        .padding(horizontal = 20.dp) // Aumentamos el padding para dar espacio
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = text,
-                        tint = pastelText,
-                        modifier = Modifier.size(32.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = pastelText
-                    )
-                }
-
-                if (index < storeOptions.size - 1) {
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(1.dp),
-                        color = Color.LightGray.copy(alpha = 0.8f)
-                    )
-                }
-            }
-        }
-    }
-}
-@OptIn(ExperimentalMaterial3Api::class)
+// --- 3. CONTENIDO ESPECIALIZADO PARA LA PESTAÑA "HOME" ---
 @Composable
-fun HomeTabContent(navController: NavController) {
+fun HomeTabContent(navController: NavController, username: String) {
     val pastelBackground = Color(0xFFFFF8F0)
     val pastelCard = Color(0xFFFFE0E0)
     val pastelText = Color(0xFF5D4037)
@@ -133,13 +129,23 @@ fun HomeTabContent(navController: NavController) {
             .fillMaxSize()
             .background(pastelBackground)
     ) {
+        // Encabezado de bienvenida
         item {
-            StoreInfoSection(modifier = Modifier.padding(horizontal = 16.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFFFCCBC)) // Fondo suave
+                    .padding(start = 16.dp, top = 8.dp, bottom = 16.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+            }
         }
         item {
-            ProductCarousel(modifier = Modifier.padding(bottom = 12.dp)) // Se elimina el padding superior
+            StoreInfoSection(modifier = Modifier.padding(vertical = 16.dp))
         }
-
+        item {
+            ProductCarousel(modifier = Modifier.padding(top = 24.dp, bottom = 12.dp))
+        }
         item {
             Text(
                 text = "Nuestros Pasteles",
@@ -149,6 +155,7 @@ fun HomeTabContent(navController: NavController) {
             )
         }
 
+        // Lista de productos
         val productos = listOf(
             Triple("Pastel de Vainilla", "5000", Icons.Default.Cake),
             Triple("Pastel de Chocolate", "5500", Icons.Default.Star),
@@ -163,102 +170,154 @@ fun HomeTabContent(navController: NavController) {
                 colors = CardDefaults.cardColors(containerColor = pastelCard),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
                     .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .clickable { navController.navigate("ProductoFormScreen") }
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)
-                        .clickable {
-                            navController.navigate("ProductoFormScreen")
-                        }
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     Icon(
                         imageVector = icono,
                         contentDescription = nombre,
                         tint = Color(0xFF6D4C41),
-                        modifier = Modifier.size(32.dp).padding(end = 16.dp)
+                        modifier = Modifier.size(32.dp)
                     )
-                    Column {
-                        Text(
-                            text = nombre,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = pastelText
-                        )
-                        Text(
-                            text = "$precio CLP",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = pastelText
-                        )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = nombre, style = MaterialTheme.typography.titleMedium, color = pastelText)
+                        Text(text = "$precio CLP", style = MaterialTheme.typography.bodySmall, color = pastelText)
                     }
                 }
             }
         }
 
+        // Pie de página
         item {
             Text(
                 text = "@ 2025 Pasteleria 1000 Sabores",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
-                modifier = Modifier.fillMaxWidth().padding(32.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
                 textAlign = TextAlign.Center
             )
         }
     }
 }
 
+// --- 4. COMPONENTES REUTILIZABLES (SIN CAMBIOS) ---
 @Composable
-fun ProductCarousel(modifier: Modifier) {
-    val imageList = listOf(
-        R.drawable.tcuadrada,
-        R.drawable.pastelblanco,
-        R.drawable.tortatresleches
+fun StoreInfoSection(modifier: Modifier = Modifier) {
+    val pastelText = Color(0xFF5D4037)
+    val storeOptions = listOf(
+        Pair(Icons.Default.LocationOn, "Ubicación"),
+        Pair(Icons.Default.Phone, "Llámanos"),
+        Pair(Icons.Default.Share, "Redes")
     )
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        storeOptions.forEach { (icon, text) ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable { /* Lógica futura */ }
+            ) {
+                Icon(imageVector = icon, contentDescription = text, tint = pastelText, modifier = Modifier.size(24.dp))
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = text, style = MaterialTheme.typography.bodySmall, color = pastelText)
+            }
+        }
+    }
+}@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ProductCarousel(modifier: Modifier = Modifier) {
+    // Lista de imágenes y textos correspondientes
+    val imageList = listOf(R.drawable.tcuadrada, R.drawable.pastelblanco, R.drawable.tortatresleches)
+    val textList = listOf("Nuestros Clásicos", "Especial de la Casa", "Postres que Enamoran")
 
     val pagerState = rememberPagerState(pageCount = { imageList.size })
+
+    // Efecto para el auto-scroll (el "time" de cada imagen)
+    LaunchedEffect(pagerState) {
+        while (true) {
+            delay(4000) // Espera 4 segundos
+            val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
+            // Anima el scroll a la siguiente página
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
 
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = " Novedades del Mes ",
-            style = MaterialTheme.typography.titleLarge,
-            color = Color(0xFF5D4037),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
+        // Pager horizontal que contiene las imágenes
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp),
-            contentPadding = PaddingValues(horizontal = 40.dp),
-            pageSpacing = 16.dp
+            contentPadding = PaddingValues(horizontal = 32.dp), // Padding para ver un poco de las tarjetas de los lados
+            pageSpacing = 16.dp // Espacio entre las páginas
         ) { page ->
-            Image(
-                painter = painterResource(id = imageList[page]),
-                contentDescription = "Producto destacado ${page + 1}",
-                contentScale = ContentScale.Crop,
+            // Box para superponer la imagen, el gradiente y el texto
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(24.dp))
-            )
+                    .clip(RoundedCornerShape(24.dp)) // Bordes redondeados para cada tarjeta del carrusel
+            ) {
+                // 1. Imagen de fondo
+                Image(
+                    painter = painterResource(id = imageList[page]),
+                    contentDescription = textList[page],
+                    contentScale = ContentScale.Crop, // Escala la imagen para que llene el contenedor
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // 2. Gradiente oscuro en la parte inferior para legibilidad del texto
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        // ✅ CÓDIGO AÑADIDO AQUÍ
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f)),
+                                startY = 300f // Inicia el gradiente más abajo para un efecto sutil
+                            )
+                        )
+                )
+
+                // 3. Texto superpuesto
+                Text(
+                    text = textList[page],
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = Color.White, // Texto blanco
+                        fontWeight = FontWeight.Bold // Texto en negrita
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter) // Alineado abajo y al centro
+                        .padding(16.dp) // Padding para que no toque los bordes
+                )
+            }
         }
 
+        // Indicador de puntos (pager dots)
         Row(
             Modifier
                 .height(20.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(top = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            repeat(imageList.size) { iteration ->
+            repeat(pagerState.pageCount) { iteration ->
                 val color = if (pagerState.currentPage == iteration) Color(0xFF6D4C41) else Color.LightGray
                 Box(
                     modifier = Modifier
-                        .padding(4.dp)
+                        .padding(horizontal = 4.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .background(color)
                         .size(10.dp)
