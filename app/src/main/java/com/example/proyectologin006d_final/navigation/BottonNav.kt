@@ -14,22 +14,17 @@ sealed class BottomNavItem(
     val icon: ImageVector      // Ícono a mostrar
 ) {
     object Home : BottomNavItem(
-        route = "home",
+        route = "inicio",
         title = "Inicio",
         icon = Icons.Default.Home
     )
-    object Products : BottomNavItem(
-        route = "products",
+    object Productos : BottomNavItem(
+        route = "productos",
         title = "Productos",
         icon = Icons.Default.Storefront
     )
-    object Camera : BottomNavItem(
-        route = "camera",
-        title = "Cámara",
-        icon = Icons.Default.PhotoCamera
-    )
-    object Profile : BottomNavItem(
-        route = "profile",
+    object Perfil : BottomNavItem(
+        route = "perfil",
         title = "Perfil",
         icon = Icons.Default.Person
     )

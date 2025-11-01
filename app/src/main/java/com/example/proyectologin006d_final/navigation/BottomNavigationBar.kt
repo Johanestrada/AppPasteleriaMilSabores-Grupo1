@@ -13,9 +13,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 fun BottomNavigationBar(navController: NavController) {
     val items = listOf(
         BottomNavItem.Home,
-        BottomNavItem.Products,
-        BottomNavItem.Profile,
-        BottomNavItem.Camera
+        BottomNavItem.Productos,
+        BottomNavItem.Perfil
     )
 
     NavigationBar {

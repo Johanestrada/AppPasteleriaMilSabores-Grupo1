@@ -1,6 +1,5 @@
 package com.example.proyectologin006d_final.view
 
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,9 +29,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.proyectologin006d_final.R
 import com.example.proyectologin006d_final.navigation.BottomNavigationBar
 import com.example.proyectologin006d_final.navigation.BottomNavItem
-import com.example.proyectologin006d_final.ui.camera.QRScannerScreen
-import com.example.proyectologin006d_final.ui.products.ProductsScreen
-import com.example.proyectologin006d_final.ui.profile.ProfileScreen
+import com.example.proyectologin006d_final.ui.producto.ProductsScreen
+import com.example.proyectologin006d_final.ui.perfil.PerfilScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun MainScreen(username: String, mainNavController: NavController) {
@@ -61,14 +59,11 @@ fun BottomNavGraph(navController: NavHostController, mainNavController: NavContr
         composable(BottomNavItem.Home.route) {
             HomeTabContent(navController = mainNavController)
         }
-        composable(BottomNavItem.Products.route) {
+        composable(BottomNavItem.Productos.route) {
             ProductsScreen()
         }
-        composable(BottomNavItem.Profile.route) {
-            ProfileScreen(mainNavController = mainNavController)
-        }
-        composable(BottomNavItem.Camera.route) {
-            QRScannerScreen()
+        composable(BottomNavItem.Perfil.route) {
+            PerfilScreen(mainNavController = mainNavController)
         }
     }
 }
@@ -154,6 +149,65 @@ fun HomeTabContent(navController: NavController) {
                 modifier = Modifier.fillMaxWidth().padding(32.dp),
                 textAlign = TextAlign.Center
             )
+        }
+    }
+}
+
+@Composable
+fun ProductCarousel(modifier: Modifier) {
+    val imageList = listOf(
+        R.drawable.tcuadrada,
+        R.drawable.pastelblanco,
+        R.drawable.tortatresleches
+    )
+
+    val pagerState = rememberPagerState(pageCount = { imageList.size })
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = " Novedades del Mes ",
+            style = MaterialTheme.typography.titleLarge,
+            color = Color(0xFF5D4037),
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(180.dp),
+            contentPadding = PaddingValues(horizontal = 40.dp),
+            pageSpacing = 16.dp
+        ) { page ->
+            Image(
+                painter = painterResource(id = imageList[page]),
+                contentDescription = "Producto destacado ${page + 1}",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(24.dp))
+            )
+        }
+
+        Row(
+            Modifier
+                .height(20.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(imageList.size) { iteration ->
+                val color = if (pagerState.currentPage == iteration) Color(0xFF6D4C41) else Color.LightGray
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(color)
+                        .size(10.dp)
+                )
+            }
         }
     }
 }

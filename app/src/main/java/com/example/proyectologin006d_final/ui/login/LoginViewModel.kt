@@ -48,6 +48,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 if (user != null) {
                     // Guardamos la sesión del usuario
                     SessionManager.saveSession(getApplication(), user.nombreCompleto)
+                    SessionManager.saveUserEmail(getApplication(), user.correo)
                     // Si encontramos el usuario, navegamos. Pasamos el nombre completo.
                     onSuccess(user.nombreCompleto)
                 } else {
