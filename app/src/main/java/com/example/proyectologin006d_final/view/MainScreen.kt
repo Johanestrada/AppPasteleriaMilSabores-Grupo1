@@ -38,17 +38,14 @@ import com.example.proyectologin006d_final.ui.producto.ProductsScreen
 import com.example.proyectologin006d_final.ui.perfil.PerfilScreen
 import kotlinx.coroutines.delay
 
-// --- 1. PANTALLA PRINCIPAL CON SCAFFOLD Y NAVEGACIÓN ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(username: String, mainNavController: NavController) {
     val bottomNavController = rememberNavController()
     var searchText by remember { mutableStateOf("") }
 
-    // Usamos Scaffold como el contenedor principal que incluye la TopBar y la BottomBar.
     Scaffold(
         topBar = {
-            // Barra superior con el buscador y los iconos de acción.
             TopAppBar(
                 title = {
                     OutlinedTextField(
@@ -100,7 +97,6 @@ fun MainScreen(username: String, mainNavController: NavController) {
     }
 }
 
-// --- 2. GRAFO DE NAVEGACIÓN PARA LAS PESTAÑAS (TABS) ---
 @Composable
 fun BottomNavGraph(navController: NavHostController, mainNavController: NavController, username: String) {
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
@@ -117,7 +113,6 @@ fun BottomNavGraph(navController: NavHostController, mainNavController: NavContr
     }
 }
 
-// --- 3. CONTENIDO ESPECIALIZADO PARA LA PESTAÑA "HOME" ---
 @Composable
 fun HomeTabContent(navController: NavController, username: String) {
     val pastelBackground = Color(0xFFFFF8F0)
@@ -278,11 +273,9 @@ fun ProductCarousel(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // 2. Gradiente oscuro en la parte inferior para legibilidad del texto
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        // ✅ CÓDIGO AÑADIDO AQUÍ
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f)),
