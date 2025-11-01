@@ -14,18 +14,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.proyectologin006d_final.R // ✨ ¡Asegúrate de que este import sea correcto para tu proyecto!
 import com.example.proyectologin006d_final.util.SessionManager
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(username: String, navController: NavController) {
@@ -159,65 +163,80 @@ fun HomeScreen(username: String, navController: NavController) {
     }
 }
 
-// ✨ --- COMPOSABLE DEL CARRUSEL (para mantener el código limpio) ---
 @Composable
 fun ProductCarousel(modifier: Modifier = Modifier) {
-    // IMPORTANTE: Reemplaza estos R.drawable con tus propias imágenes.
-    // ¡Recuerda que los nombres deben estar en minúsculas!
     val imageList = listOf(
-        R.drawable.tcuadrada, // Ejemplo: R.drawable.nombre_de_tu_imagen
+        R.drawable.tcuadrada,
         R.drawable.pastelblanco,
         R.drawable.tortatresleches
     )
+    // --- 1. Creamos una lista con los textos para cada imagen ---
+    val textList = listOf(
+        "Nuestros Clásicos",
+        "Especial de la Casa",
+        "Postres que Enamoran"
+    )
 
     val pagerState = rememberPagerState(pageCount = { imageList.size })
+
+    // La lógica de auto-scroll debe estar dentro de un LaunchedEffect
+    LaunchedEffect(pagerState) {
+        while (true) {
+            delay(3000) // Espera 3 segundos
+            val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
 
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "✨ Novedades del Mes ✨",
-            style = MaterialTheme.typography.titleLarge,
-            color = Color(0xFF5D4037),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp),
-            contentPadding = PaddingValues(horizontal = 40.dp), // Para que se vean los lados
             pageSpacing = 16.dp
         ) { page ->
-            Image(
-                painter = painterResource(id = imageList[page]),
-                contentDescription = "Producto destacado ${page + 1}",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(24.dp)) // Bordes redondeados
-            )
-        }
+            // --- 2. Cada página ahora es un Box para poder apilar elementos ---
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(16.dp)) // Añadimos bordes redondeados al carrusel
+            ) {
+                // La imagen va primero, para que quede de fondo
+                Image(
+                    painter = painterResource(id = imageList[page]),
+                    contentDescription = textList[page],
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
 
-        // Indicador de puntos (opcional, pero muy visual)
-        Row(
-            Modifier
-                .height(20.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            repeat(imageList.size) { iteration ->
-                val color = if (pagerState.currentPage == iteration) Color(0xFF6D4C41) else Color.LightGray
+                // --- 3. Añadimos un gradiente oscuro para asegurar legibilidad ---
                 Box(
                     modifier = Modifier
-                        .padding(4.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(color)
-                        .size(10.dp)
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
+                                startY = 300f // El gradiente empieza más abajo
+                            )
+                        )
+                )
+
+                // --- 4. El texto va al final, para que quede encima de todo ---
+                Text(
+                    text = textList[page], // Usamos el texto de nuestra nueva lista
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter) // Lo alineamos abajo y al centro
+                        .padding(16.dp) // Con un poco de espacio
                 )
             }
         }
+
     }
 }

@@ -72,7 +72,60 @@ fun BottomNavGraph(navController: NavHostController, mainNavController: NavContr
         }
     }
 }
+@Composable
+fun StoreInfoSection(modifier: Modifier = Modifier) {
+    val pastelText = Color(0xFF5D4037)
+    val storeOptions = listOf(
+        Pair(Icons.Default.LocationOn, "Ubicación"),
+        Pair(Icons.Default.Phone, "Llámanos"),
+        Pair(Icons.Default.Share, "Redes")
+    )
 
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier
+                .height(55.dp) // Mantenemos la altura
+                .padding(vertical = 16.dp),
+            horizontalArrangement = Arrangement.Center, // Usamos Center para que los elementos estén juntos
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            storeOptions.forEachIndexed { index, (icon, text) ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .clickable { /* Lógica futura */ }
+                        .padding(horizontal = 20.dp) // Aumentamos el padding para dar espacio
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = text,
+                        tint = pastelText,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = pastelText
+                    )
+                }
+
+                if (index < storeOptions.size - 1) {
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(1.dp),
+                        color = Color.LightGray.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        }
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTabContent(navController: NavController) {
@@ -86,7 +139,10 @@ fun HomeTabContent(navController: NavController) {
             .background(pastelBackground)
     ) {
         item {
-            ProductCarousel(modifier = Modifier.padding(top = 24.dp, bottom = 12.dp))
+            StoreInfoSection(modifier = Modifier.padding(horizontal = 16.dp))
+        }
+        item {
+            ProductCarousel(modifier = Modifier.padding(bottom = 12.dp)) // Se elimina el padding superior
         }
 
         item {
