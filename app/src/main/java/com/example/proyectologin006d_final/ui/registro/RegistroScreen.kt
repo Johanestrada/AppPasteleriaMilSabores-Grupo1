@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -57,6 +58,15 @@ fun RegistroScreen(
                             "Formulario de Registro",
                             color = MaterialTheme.colorScheme.onPrimary // Usa el color del tema
                         )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Volver atrás",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = pastelAccent)
                 )
@@ -151,7 +161,7 @@ fun RegistroScreen(
                     onClick = {
                         registroViewModel.registrarUsuario()
                         // Opcional: navegar hacia atrás o mostrar un mensaje
-                        // navController.popBackStack()
+                        navController.popBackStack()
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = registroViewModel.nombreCompleto.isNotBlank() &&
