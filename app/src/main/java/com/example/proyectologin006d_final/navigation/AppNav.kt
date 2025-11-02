@@ -1,5 +1,6 @@
 package com.example.proyectologin006d_final.navigation
 
+import RegistroScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,7 +11,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.proyectologin006d_final.ui.camera.TomarFotoScreen
 import com.example.proyectologin006d_final.ui.login.LoginScreen
-import com.example.proyectologin006d_final.ui.registro.RegistroScreen
 import com.example.proyectologin006d_final.view.MainScreen
 import com.example.proyectologin006d_final.view.ProductoFormScreen
 

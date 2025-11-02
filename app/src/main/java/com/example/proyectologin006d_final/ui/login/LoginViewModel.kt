@@ -33,7 +33,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         uiState = uiState.copy(clave = value, mensaje = "")
     }
 
-    // ✨ LÓGICA DE LOGIN CON ROOM ✨
     fun submit(onSuccess: (String) -> Unit) {
         uiState = uiState.copy(isLoading = true, mensaje = "")
 

@@ -50,7 +50,7 @@ fun LoginScreen(
             onPrimary = Color.White,
             surface = pastelBackground,
             onSurface = pastelText,
-            background = pastelBackground // Importante definir el background
+            background = pastelBackground 
         )
     ) {
         Scaffold(
@@ -132,7 +132,7 @@ fun LoginScreen(
                     onClick = {
                         vm.submit { nombreUsuario ->
                             navController.navigate("home/$nombreUsuario") {
-                                popUpTo("login") { inclusive = true } // Limpia el backstack
+                                popUpTo("login") { inclusive = true }
                             }
                         }
                     },

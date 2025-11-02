@@ -105,7 +105,7 @@ fun ProfileHeader(usuario: Usuario?, photoUri: String?, onImageClick: () -> Unit
 
 @Composable
 fun ProfileMenu() {
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         ProfileMenuItem(text = "Editar Perfil") { /* TODO */ }
         ProfileMenuItem(text = "Mis Pedidos") { /* TODO */ }
         ProfileMenuItem(text = "Mis Direcciones") { /* TODO */ }

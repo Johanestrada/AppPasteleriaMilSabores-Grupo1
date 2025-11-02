@@ -45,7 +45,6 @@ fun ProductsScreen() {
             .background(pastelBacground)
     )
     {
-            //Ahora estamos dentro del box en el cual llamaremos a las funciones que mostrarta la lista de producto
             ProductList()
     }
 }

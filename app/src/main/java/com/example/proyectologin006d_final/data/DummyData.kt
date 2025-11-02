@@ -1,4 +1,3 @@
-// Archivo: data/DummyData.kt
 package com.example.proyectologin006d_final.data
 
 val regionesDeChile = listOf(
