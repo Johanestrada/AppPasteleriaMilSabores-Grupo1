@@ -30,14 +30,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.proyectologin006d_final.R
 import com.example.proyectologin006d_final.navigation.BottomNavigationBar
 import com.example.proyectologin006d_final.navigation.BottomNavItem
-import com.example.proyectologin006d_final.ui.carrito.CarritoScreen
 import com.example.proyectologin006d_final.ui.perfil.PerfilScreen
 import com.example.proyectologin006d_final.ui.producto.ProductsScreen
 import com.example.proyectologin006d_final.viewmodel.CartViewModel
@@ -46,25 +44,23 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(username: String, mainNavController: NavController) {
-    // ---- INICIO CAMBIOS ----
-    // 1. Instanciamos el CartViewModel. `viewModel()` se asegura que haya una única instancia.
+    // 1. Instanciamos el CartViewModel. `viewModel()` asegura una única instancia compartida.
     val cartViewModel: CartViewModel = viewModel()
 
-    // 2. Creamos un nuevo NavController para la navegación principal (incluyendo el carrito)
-    val appNavController = rememberNavController()
-    // ---- FIN CAMBIOS ----
+    // 2. Creamos un NavController solo para la barra de navegación inferior.
+    val bottomNavController = rememberNavController()
 
+    // 3. Utilizamos un único Scaffold para toda la pantalla principal.
     Scaffold(
         topBar = {
-            // El TopAppBar ahora usa el nuevo appNavController para ir al carrito
             TopAppBar(
                 title = { Text("Mil Sabores") },
                 actions = {
                     IconButton(onClick = { /* TODO: Lista de deseos */ }) {
                         Icon(Icons.Default.FavoriteBorder, contentDescription = "Lista de Deseos")
                     }
-                    // Ahora navega usando el controlador principal
-                    IconButton(onClick = { appNavController.navigate("carrito") }) {
+                    // Usamos el 'mainNavController' para ir a la ruta del carrito en AppNav.kt
+                    IconButton(onClick = { mainNavController.navigate("carrito") }) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito de Compras")
                     }
                     IconButton(onClick = { /* TODO: Notificaciones */ }) {
@@ -74,65 +70,37 @@ fun MainScreen(username: String, mainNavController: NavController) {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFFFCCBC))
             )
         },
-        // El BottomBar sigue usando su propio NavController para las pestañas inferiores
-        bottomBar = { BottomNavigationBar(navController = rememberNavController()) }
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            // ---- INICIO CAMBIOS ----
-            // 3. Configuramos el NavHost principal que gestionará todas las pantallas
-            NavHost(navController = appNavController, startDestination = "home_tab") {
-                // Ruta para el contenido principal (con las pestañas inferiores)
-                composable("home_tab") {
-                    HomeTabContent(navController = appNavController, username = username, cartViewModel = cartViewModel)
-                }
-                // Nueva ruta para la pantalla del carrito
-                composable("carrito") {
-                    CarritoScreen(navController = appNavController, cartViewModel = cartViewModel)
-                }
-                composable("productos_tab") {
-                    ProductsScreen(cartViewModel = cartViewModel)
-                }
-                composable("perfil_tab") {
-                    PerfilScreen(mainNavController = appNavController)
-                }
-            }
-            // ---- FIN CAMBIOS ----
+        bottomBar = {
+            // La barra de navegación inferior controla las pestañas principales.
+            BottomNavigationBar(navController = bottomNavController)
         }
-    }
-}
-
-// ---- INICIO CAMBIOS ----
-// Se ha refactorizado para incluir el BottomNavGraph dentro de un NavHost más grande
-@Composable
-fun HomeTabContent(navController: NavController, username: String, cartViewModel: CartViewModel) {
-    val bottomNavController = rememberNavController()
-    Scaffold(
-        bottomBar = { BottomNavigationBar(navController = bottomNavController) }
     ) { innerPadding ->
+        // NavHost para las pestañas inferiores (Home, Productos, Perfil).
+        // Este NavHost vive dentro del Scaffold principal.
         NavHost(
             navController = bottomNavController,
             startDestination = BottomNavItem.Home.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding) // Aplica el padding del Scaffold
         ) {
             composable(BottomNavItem.Home.route) {
-                // Home principal (el que tenías antes)
-                HomeScreenContent(navController = navController, username = username)
+                // El contenido de la pantalla de inicio.
+                HomeScreenContent(username = username)
             }
             composable(BottomNavItem.Productos.route) {
-                // La pantalla de productos ahora recibe el ViewModel
+                // La pantalla de productos recibe el ViewModel para añadir al carrito.
                 ProductsScreen(cartViewModel = cartViewModel)
             }
             composable(BottomNavItem.Perfil.route) {
-                PerfilScreen(mainNavController = navController)
+                // La pantalla de perfil usa el 'mainNavController' para acciones como cerrar sesión.
+                PerfilScreen(mainNavController = mainNavController)
             }
         }
     }
 }
 
-// El contenido original de HomeTabContent ahora está aquí
+// Contenido exclusivo de la pantalla de Inicio
 @Composable
-fun HomeScreenContent(navController: NavController, username: String) {
-// ---- FIN CAMBIOS ----
+fun HomeScreenContent(username: String) {
     val pastelBackground = Color(0xFFFFF8F0)
     val pastelCard = Color(0xFFFFE0E0)
     val pastelText = Color(0xFF5D4037)
@@ -143,21 +111,11 @@ fun HomeScreenContent(navController: NavController, username: String) {
             .background(pastelBackground)
     ) {
         item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFFFCCBC))
-                    .padding(start = 16.dp, top = 8.dp, bottom = 16.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {}
-        }
-        item {
             StoreInfoSection(modifier = Modifier.padding(vertical = 16.dp))
         }
         item {
-            ProductCarousel(modifier = Modifier.padding(top = 24.dp, bottom = 12.dp))
+            ProductCarousel(modifier = Modifier.padding(top = 8.dp, bottom = 12.dp))
         }
-
         item {
             Card(
                 shape = RoundedCornerShape(16.dp),
@@ -175,17 +133,16 @@ fun HomeScreenContent(navController: NavController, username: String) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Bienvenidos a Pastelería Mil Sabores...", // Texto completo
+                        text = "Bienvenidos a Pastelería Mil Sabores. Desde 2025, endulzamos tus momentos con recetas tradicionales y creaciones únicas, usando siempre los ingredientes más frescos.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = pastelText
                     )
                 }
             }
         }
-
         item {
             Text(
-                text = "@ 2025 Pasteleria 1000 Sabores",
+                text = "@ 2025 Pasteleria Mil Sabores",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
                 modifier = Modifier
@@ -197,6 +154,7 @@ fun HomeScreenContent(navController: NavController, username: String) {
     }
 }
 
+// --- Componentes reusables de la pantalla de inicio ---
 
 @Composable
 fun StoreInfoSection(modifier: Modifier = Modifier) {
@@ -205,7 +163,7 @@ fun StoreInfoSection(modifier: Modifier = Modifier) {
     val storeOptions = listOf(
         Triple(Icons.Default.LocationOn, "Ubicación", "geo:0,0?q=Duoc UC: Sede Puente Alto"),
         Triple(Icons.Default.Phone, "Llámanos", "tel:+56912345678"),
-        Triple(Icons.Default.Share, "Redes", null)
+        Triple(Icons.Default.Share, "Redes", "https://www.instagram.com") // URL de ejemplo
     )
 
     Row(
@@ -217,10 +175,8 @@ fun StoreInfoSection(modifier: Modifier = Modifier) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.clickable {
-                    actionUri?.let {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
-                        context.startActivity(intent)
-                    }
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(actionUri))
+                    context.startActivity(intent)
                 }
             ) {
                 Icon(imageVector = icon, contentDescription = text, tint = pastelText, modifier = Modifier.size(24.dp))
@@ -236,7 +192,6 @@ fun StoreInfoSection(modifier: Modifier = Modifier) {
 fun ProductCarousel(modifier: Modifier = Modifier) {
     val imageList = listOf(R.drawable.tcuadrada, R.drawable.pastelblanco, R.drawable.tortatresleches)
     val textList = listOf("Nuestros Clásicos", "Especial de la Casa", "Postres que Enamoran")
-
     val pagerState = rememberPagerState(pageCount = { imageList.size })
 
     LaunchedEffect(pagerState) {
@@ -313,3 +268,4 @@ fun ProductCarousel(modifier: Modifier = Modifier) {
         }
     }
 }
+
