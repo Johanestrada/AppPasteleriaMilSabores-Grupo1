@@ -59,6 +59,26 @@ fun ProductList(cartViewModel: CartViewModel) {
             id = 3, codigo = "P003", categoria = "Pasteles", nombre = "Torta Tres Leches",
             precio = 12990, descripcion = "La leche ideal para ir al water", personalizable = true,
             imagenResId = R.drawable.tortatresleches
+        ),
+        Producto(
+            id = 4, codigo = "P004", categoria = "Alfajores", nombre = "Alfajor de Chocolate",
+            precio = 6990, descripcion = "Lo cremoso esta dentro del manjar", personalizable = true,
+            imagenResId = R.drawable.alfajor
+        ),
+        Producto(
+            id = 5, codigo = "P005", categoria = "El mas Grande", nombre = "Torta Colo Colo",
+            precio = 6990, descripcion = "Torta De el Mas grande", personalizable = true,
+            imagenResId = R.drawable.futbol
+        ),
+        Producto(
+            id = 6, codigo = "P006", categoria = "Tortas", nombre = "Torta Cars",
+            precio = 6990, descripcion = "Torta Cars", personalizable = true,
+            imagenResId = R.drawable.cars
+        ),
+        Producto(
+            id = 7, codigo = "P007", categoria = "Torta ", nombre = "Torta Animada",
+            precio = 6990, descripcion = "Torta Animada", personalizable = true,
+            imagenResId = R.drawable.pastelpzl
         )
     )
     LazyColumn(
