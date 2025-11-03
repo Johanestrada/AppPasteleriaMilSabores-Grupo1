@@ -10,6 +10,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow // <-- IMPORTACIÓN AÑADIDA
+import androidx.compose.foundation.lazy.items // <-- IMPORTACIÓN AÑADIDA
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +30,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -43,14 +44,14 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(username: String, mainNavController: NavController, cartViewModel: CartViewModel) {
-    // 1. Instanciamos el CartViewModel. `viewModel()` asegura una única instancia compartida.
-    val cartViewModel: CartViewModel = viewModel()
-
-    // 2. Creamos un NavController solo para la barra de navegación inferior.
+fun MainScreen(
+    username: String,
+    mainNavController: NavController,
+    cartViewModel: CartViewModel // Recibe el ViewModel desde AppNav
+) {
+    // El NavController para la barra inferior.
     val bottomNavController = rememberNavController()
 
-    // 3. Utilizamos un único Scaffold para toda la pantalla principal.
     Scaffold(
         topBar = {
             TopAppBar(
@@ -59,7 +60,6 @@ fun MainScreen(username: String, mainNavController: NavController, cartViewModel
                     IconButton(onClick = { /* TODO: Lista de deseos */ }) {
                         Icon(Icons.Default.FavoriteBorder, contentDescription = "Lista de Deseos")
                     }
-                    // Usamos el 'mainNavController' para ir a la ruta del carrito en AppNav.kt
                     IconButton(onClick = { mainNavController.navigate("carrito") }) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito de Compras")
                     }
@@ -71,27 +71,21 @@ fun MainScreen(username: String, mainNavController: NavController, cartViewModel
             )
         },
         bottomBar = {
-            // La barra de navegación inferior controla las pestañas principales.
             BottomNavigationBar(navController = bottomNavController)
         }
     ) { innerPadding ->
-        // NavHost para las pestañas inferiores (Home, Productos, Perfil).
-        // Este NavHost vive dentro del Scaffold principal.
         NavHost(
             navController = bottomNavController,
             startDestination = BottomNavItem.Home.route,
-            modifier = Modifier.padding(innerPadding) // Aplica el padding del Scaffold
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Home.route) {
-                // El contenido de la pantalla de inicio.
                 HomeScreenContent(username = username)
             }
             composable(BottomNavItem.Productos.route) {
-                // La pantalla de productos recibe el ViewModel para añadir al carrito.
-                ProductsScreen(cartViewModel = cartViewModel)
+                ProductsScreen(cartViewModel = cartViewModel) // Pasa el ViewModel
             }
             composable(BottomNavItem.Perfil.route) {
-                // La pantalla de perfil usa el 'mainNavController' para acciones como cerrar sesión.
                 PerfilScreen(mainNavController = mainNavController)
             }
         }
@@ -116,6 +110,13 @@ fun HomeScreenContent(username: String) {
         item {
             ProductCarousel(modifier = Modifier.padding(top = 8.dp, bottom = 12.dp))
         }
+
+        // --- NUEVA SECCIÓN HORIZONTAL INTEGRADA ---
+        item {
+            FeaturedProducts(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp))
+        }
+        // --- FIN DE LA SECCIÓN INTEGRADA ---
+
         item {
             Card(
                 shape = RoundedCornerShape(16.dp),
@@ -163,7 +164,7 @@ fun StoreInfoSection(modifier: Modifier = Modifier) {
     val storeOptions = listOf(
         Triple(Icons.Default.LocationOn, "Ubicación", "geo:0,0?q=Duoc UC: Sede Puente Alto"),
         Triple(Icons.Default.Phone, "Llámanos", "tel:+56912345678"),
-        Triple(Icons.Default.Share, "Redes", "https://www.instagram.com") // URL de ejemplo
+        Triple(Icons.Default.Share, "Redes", "https://www.instagram.com")
     )
 
     Row(
@@ -197,8 +198,7 @@ fun ProductCarousel(modifier: Modifier = Modifier) {
     LaunchedEffect(pagerState) {
         while (true) {
             delay(4000)
-            val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
-            pagerState.animateScrollToPage(nextPage)
+            pagerState.animateScrollToPage((pagerState.currentPage + 1) % pagerState.pageCount)
         }
     }
 
@@ -208,9 +208,7 @@ fun ProductCarousel(modifier: Modifier = Modifier) {
     ) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp),
+            modifier = Modifier.height(180.dp),
             contentPadding = PaddingValues(horizontal = 32.dp),
             pageSpacing = 16.dp
         ) { page ->
@@ -237,10 +235,7 @@ fun ProductCarousel(modifier: Modifier = Modifier) {
                 )
                 Text(
                     text = textList[page],
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    ),
+                    style = MaterialTheme.typography.titleLarge.copy(color = Color.White, fontWeight = FontWeight.Bold),
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(16.dp)
@@ -269,3 +264,59 @@ fun ProductCarousel(modifier: Modifier = Modifier) {
     }
 }
 
+// --- NUEVOS COMPOSABLES PARA LA LISTA HORIZONTAL (LazyRow) ---
+
+@Composable
+fun FeaturedProducts(modifier: Modifier = Modifier) {
+    val featuredProductList = listOf(
+        Pair(R.drawable.tor_clasic, "Pasteles"),
+        Pair(R.drawable.merengcolor0, "Postres"),
+        Pair(R.drawable.trufasb, "Cocteles")
+    )
+
+    Column(modifier = modifier) {
+        Text(
+            text = "Productos Destacados",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF5D4037),
+            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+        )
+
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(featuredProductList) { product ->
+                FeaturedProductCard(imageResId = product.first, name = product.second)
+            }
+        }
+    }
+}
+
+@Composable
+fun FeaturedProductCard(imageResId: Int, name: String) {
+    Card(
+        modifier = Modifier.width(160.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column {
+            Image(
+                painter = painterResource(id = imageResId),
+                contentDescription = name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+            )
+            Text(
+                text = name,
+                modifier = Modifier.padding(12.dp),
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
+}
