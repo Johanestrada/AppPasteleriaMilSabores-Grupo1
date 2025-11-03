@@ -17,6 +17,7 @@ import com.example.proyectologin006d_final.view.MainScreen
 import com.example.proyectologin006d_final.view.ProductoFormScreen
 import com.example.proyectologin006d_final.ui.carrito.CarritoScreen
 // Make sure to import your CartViewModel
+import com.example.proyectologin006d_final.ui.producto.ProductsScreen
 import com.example.proyectologin006d_final.viewmodel.CartViewModel
 
 @Composable
@@ -55,6 +56,12 @@ fun AppNav(startDestination: String) {
         // --- Pantalla de Formulario de Producto ---
         composable(route = "ProductoFormScreen") {
             ProductoFormScreen()
+        }
+
+        // --- Pantalla de Productos ---
+        composable(route = "products") {
+            val cartViewModel: CartViewModel = viewModel()
+            ProductsScreen(cartViewModel = cartViewModel)
         }
 
         // --- Pantalla de Registro ---
