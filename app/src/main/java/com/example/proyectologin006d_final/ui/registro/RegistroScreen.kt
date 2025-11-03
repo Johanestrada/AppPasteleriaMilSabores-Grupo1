@@ -1,3 +1,5 @@
+package com.example.proyectologin006d_final.ui.registro
+
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.clickable
