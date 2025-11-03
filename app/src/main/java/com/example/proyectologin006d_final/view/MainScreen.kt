@@ -285,7 +285,7 @@ fun FeaturedProducts(modifier: Modifier = Modifier) {
 
         LazyRow(
             contentPadding = PaddingValues(horizontal = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(featuredProductList) { product ->
                 FeaturedProductCard(imageResId = product.first, name = product.second)
@@ -308,7 +308,7 @@ fun FeaturedProductCard(imageResId: Int, name: String) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
+                    .height(50.dp)
             )
             Text(
                 text = name,

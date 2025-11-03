@@ -17,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -31,21 +30,26 @@ import com.example.proyectologin006d_final.viewmodel.CartViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarritoScreen(navController: NavController, cartViewModel: CartViewModel) {
-    // Observamos la lista de productos del ViewModel.
-    // collectAsState() asegura que la UI se recomponga cuando la lista cambie.
     val cartItems by cartViewModel.cartItems.collectAsState()
     val pastelBackground = Color(0xFFFFF8F0)
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mi Carrito", color = Color.White) },
+                title = { Text("Mi Carrito", color = Color(0xFF5D4037)) }, // Texto café oscuro
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = Color(0xFF5D4037) // Icono café oscuro
+                        )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF6D4C41))
+                // --- CORRECCIÓN: Se cambia el color café por el rosado pastel ---
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFFFCCBC) // Color rosado pastel
+                )
             )
         },
         containerColor = pastelBackground
@@ -56,7 +60,6 @@ fun CarritoScreen(navController: NavController, cartViewModel: CartViewModel) {
                 .padding(padding)
         ) {
             if (cartItems.isEmpty()) {
-                // Mensaje si el carrito está vacío
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -64,7 +67,6 @@ fun CarritoScreen(navController: NavController, cartViewModel: CartViewModel) {
                     Text("Tu carrito está vacío", style = MaterialTheme.typography.titleLarge)
                 }
             } else {
-                // Lista de productos en el carrito
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(16.dp),
@@ -74,7 +76,6 @@ fun CarritoScreen(navController: NavController, cartViewModel: CartViewModel) {
                         CartItem(product = product)
                     }
                 }
-                // Resumen del total y botón de pago
                 CartSummary(total = cartViewModel.getTotalPrice())
             }
         }
@@ -136,7 +137,12 @@ fun CartSummary(total: Double) {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6D4C41))
             ) {
-                Text("Proceder al Pago", modifier = Modifier.padding(8.dp), fontSize = 16.sp)
+                Text(
+                    "Proceder al Pago",
+                    modifier = Modifier.padding(8.dp),
+                    fontSize = 16.sp,
+                    color = Color.White // Aseguramos que el texto del botón sea blanco
+                )
             }
         }
     }
