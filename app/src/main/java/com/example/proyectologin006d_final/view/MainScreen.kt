@@ -43,7 +43,7 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(username: String, mainNavController: NavController) {
+fun MainScreen(username: String, mainNavController: NavController, cartViewModel: CartViewModel) {
     // 1. Instanciamos el CartViewModel. `viewModel()` asegura una única instancia compartida.
     val cartViewModel: CartViewModel = viewModel()
 
