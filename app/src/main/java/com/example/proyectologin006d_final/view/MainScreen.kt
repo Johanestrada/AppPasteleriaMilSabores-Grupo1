@@ -43,6 +43,17 @@ import kotlinx.coroutines.delay
 fun MainScreen(username: String, mainNavController: NavController) {
     val bottomNavController = rememberNavController()
     var searchText by remember { mutableStateOf("") }
+    
+    // Verificar si venimos del carrito y navegar a productos
+    LaunchedEffect(mainNavController) {
+        val fromCart = mainNavController.currentBackStackEntry?.arguments?.getString("fromCart") == "true"
+        val previousRoute = mainNavController.previousBackStackEntry?.destination?.route
+        
+        // Solo navegar a productos si venimos específicamente del carrito
+        if (fromCart && previousRoute == "carrito") {
+            bottomNavController.navigate(BottomNavItem.Productos.route)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -71,7 +82,7 @@ fun MainScreen(username: String, mainNavController: NavController) {
                     IconButton(onClick = { /* TODO: Navegar a lista de deseos */ }) {
                         Icon(Icons.Default.FavoriteBorder, contentDescription = "Lista de Deseos")
                     }
-                    IconButton(onClick = { /* TODO: Navegar al carrito */ }) {
+                    IconButton(onClick = { mainNavController.navigate("carrito") }) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito de Compras")
                     }
                     IconButton(onClick = { /* TODO: Mostrar notificaciones */ }) {

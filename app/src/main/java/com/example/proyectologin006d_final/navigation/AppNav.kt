@@ -13,6 +13,7 @@ import com.example.proyectologin006d_final.ui.camera.TomarFotoScreen
 import com.example.proyectologin006d_final.ui.login.LoginScreen
 import com.example.proyectologin006d_final.view.MainScreen
 import com.example.proyectologin006d_final.view.ProductoFormScreen
+import com.example.proyectologin006d_final.ui.carrito.CarritoScreen
 
 @Composable
 fun AppNav(startDestination: String) {
@@ -24,10 +25,15 @@ fun AppNav(startDestination: String) {
         }
 
         composable(
-            route = "home/{username}",
+            route = "home/{username}?fromCart={fromCart}",
             arguments = listOf(
                 navArgument("username") {
                     type = NavType.StringType
+                },
+                navArgument("fromCart") {
+                    type = NavType.StringType
+                    defaultValue = "false"
+                    nullable = true
                 }
             )
         ) { backStackEntry ->
@@ -50,6 +56,11 @@ fun AppNav(startDestination: String) {
         // --- Pantalla de Registro ---
         composable(route = "registro") {
             RegistroScreen(navController = navController)
+        }
+
+        // --- Pantalla del Carrito ---
+        composable(route = "carrito") {
+            CarritoScreen(navController = navController)
         }
     }
 }
