@@ -17,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -133,7 +132,11 @@ fun CartSummary(total: Double, buttonColor: Color, textColor: Color) {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor, contentColor = textColor)
             ) {
-                Text("Proceder al Pago", modifier = Modifier.padding(8.dp), fontSize = 16.sp)
+                Text(
+                    "Proceder al Pago",
+                    modifier = Modifier.padding(8.dp),
+                    fontSize = 16.sp
+                )
             }
         }
     }
