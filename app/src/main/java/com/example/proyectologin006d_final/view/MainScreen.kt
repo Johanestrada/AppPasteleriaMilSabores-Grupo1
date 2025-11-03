@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/proyectologin006d_final/view/MainScreen.kt
+
 package com.example.proyectologin006d_final.view
 
 import android.content.Intent
@@ -26,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -34,95 +37,102 @@ import androidx.navigation.compose.rememberNavController
 import com.example.proyectologin006d_final.R
 import com.example.proyectologin006d_final.navigation.BottomNavigationBar
 import com.example.proyectologin006d_final.navigation.BottomNavItem
+import com.example.proyectologin006d_final.ui.carrito.CarritoScreen
 import com.example.proyectologin006d_final.ui.perfil.PerfilScreen
 import com.example.proyectologin006d_final.ui.producto.ProductsScreen
+import com.example.proyectologin006d_final.viewmodel.CartViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(username: String, mainNavController: NavController) {
-    val bottomNavController = rememberNavController()
-    var searchText by remember { mutableStateOf("") }
-    
-    // Verificar si venimos del carrito y navegar a productos
-    LaunchedEffect(mainNavController) {
-        val fromCart = mainNavController.currentBackStackEntry?.arguments?.getString("fromCart") == "true"
-        val previousRoute = mainNavController.previousBackStackEntry?.destination?.route
-        
-        // Solo navegar a productos si venimos específicamente del carrito
-        if (fromCart && previousRoute == "carrito") {
-            bottomNavController.navigate(BottomNavItem.Productos.route)
-        }
-    }
+    // ---- INICIO CAMBIOS ----
+    // 1. Instanciamos el CartViewModel. `viewModel()` se asegura que haya una única instancia.
+    val cartViewModel: CartViewModel = viewModel()
+
+    // 2. Creamos un nuevo NavController para la navegación principal (incluyendo el carrito)
+    val appNavController = rememberNavController()
+    // ---- FIN CAMBIOS ----
 
     Scaffold(
         topBar = {
+            // El TopAppBar ahora usa el nuevo appNavController para ir al carrito
             TopAppBar(
-                title = {
-                    OutlinedTextField(
-                        value = searchText,
-                        onValueChange = { searchText = it },
-                        placeholder = { Text("Buscar pasteles...") },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Icono de búsqueda") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            disabledContainerColor = Color.White,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        ),
-                        singleLine = true
-                    )
-                },
+                title = { Text("Mil Sabores") },
                 actions = {
-                    IconButton(onClick = { /* TODO: Navegar a lista de deseos */ }) {
+                    IconButton(onClick = { /* TODO: Lista de deseos */ }) {
                         Icon(Icons.Default.FavoriteBorder, contentDescription = "Lista de Deseos")
                     }
-                    IconButton(onClick = { mainNavController.navigate("carrito") }) {
+                    // Ahora navega usando el controlador principal
+                    IconButton(onClick = { appNavController.navigate("carrito") }) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito de Compras")
                     }
-                    IconButton(onClick = { /* TODO: Mostrar notificaciones */ }) {
+                    IconButton(onClick = { /* TODO: Notificaciones */ }) {
                         Icon(Icons.Default.NotificationsNone, contentDescription = "Notificaciones")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFFFCCBC)
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFFFCCBC))
             )
         },
-        bottomBar = { BottomNavigationBar(navController = bottomNavController) }
+        // El BottomBar sigue usando su propio NavController para las pestañas inferiores
+        bottomBar = { BottomNavigationBar(navController = rememberNavController()) }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            BottomNavGraph(
-                navController = bottomNavController,
-                mainNavController = mainNavController,
-                username = username
-            )
+            // ---- INICIO CAMBIOS ----
+            // 3. Configuramos el NavHost principal que gestionará todas las pantallas
+            NavHost(navController = appNavController, startDestination = "home_tab") {
+                // Ruta para el contenido principal (con las pestañas inferiores)
+                composable("home_tab") {
+                    HomeTabContent(navController = appNavController, username = username, cartViewModel = cartViewModel)
+                }
+                // Nueva ruta para la pantalla del carrito
+                composable("carrito") {
+                    CarritoScreen(navController = appNavController, cartViewModel = cartViewModel)
+                }
+                composable("productos_tab") {
+                    ProductsScreen(cartViewModel = cartViewModel)
+                }
+                composable("perfil_tab") {
+                    PerfilScreen(mainNavController = appNavController)
+                }
+            }
+            // ---- FIN CAMBIOS ----
         }
     }
 }
 
+// ---- INICIO CAMBIOS ----
+// Se ha refactorizado para incluir el BottomNavGraph dentro de un NavHost más grande
 @Composable
-fun BottomNavGraph(navController: NavHostController, mainNavController: NavController, username: String) {
-    NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
-        composable(BottomNavItem.Home.route) {
-            HomeTabContent(navController = mainNavController, username = username)
-        }
-        composable(BottomNavItem.Productos.route) {
-            ProductsScreen()
-        }
-        composable(BottomNavItem.Perfil.route) {
-            PerfilScreen(mainNavController = mainNavController)
+fun HomeTabContent(navController: NavController, username: String, cartViewModel: CartViewModel) {
+    val bottomNavController = rememberNavController()
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController = bottomNavController) }
+    ) { innerPadding ->
+        NavHost(
+            navController = bottomNavController,
+            startDestination = BottomNavItem.Home.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(BottomNavItem.Home.route) {
+                // Home principal (el que tenías antes)
+                HomeScreenContent(navController = navController, username = username)
+            }
+            composable(BottomNavItem.Productos.route) {
+                // La pantalla de productos ahora recibe el ViewModel
+                ProductsScreen(cartViewModel = cartViewModel)
+            }
+            composable(BottomNavItem.Perfil.route) {
+                PerfilScreen(mainNavController = navController)
+            }
         }
     }
 }
 
+// El contenido original de HomeTabContent ahora está aquí
 @Composable
-fun HomeTabContent(navController: NavController, username: String) {
+fun HomeScreenContent(navController: NavController, username: String) {
+// ---- FIN CAMBIOS ----
     val pastelBackground = Color(0xFFFFF8F0)
     val pastelCard = Color(0xFFFFE0E0)
     val pastelText = Color(0xFF5D4037)
@@ -165,7 +175,7 @@ fun HomeTabContent(navController: NavController, username: String) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Bienvenidos a Pastelería Mil Sabores, un lugar donde cada postre cuenta una historia. Fundada en 2025, nuestra pasión es crear momentos dulces e inolvidables para ti y tu familia. Usamos solo los ingredientes más frescos y de la más alta calidad, combinando recetas tradicionales con un toque de innovación. ¡Gracias por ser parte de nuestro sueño!",
+                        text = "Bienvenidos a Pastelería Mil Sabores...", // Texto completo
                         style = MaterialTheme.typography.bodyMedium,
                         color = pastelText
                     )
@@ -186,6 +196,7 @@ fun HomeTabContent(navController: NavController, username: String) {
         }
     }
 }
+
 
 @Composable
 fun StoreInfoSection(modifier: Modifier = Modifier) {

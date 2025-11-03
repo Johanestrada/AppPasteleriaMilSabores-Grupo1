@@ -1,86 +1,142 @@
+// app/src/main/java/com/example/proyectologin006d_final/ui/carrito/CarritoScreen.kt
+
 package com.example.proyectologin006d_final.ui.carrito
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.proyectologin006d_final.data.model.Producto
+import com.example.proyectologin006d_final.viewmodel.CartViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CarritoScreen(navController: NavController) {
+fun CarritoScreen(navController: NavController, cartViewModel: CartViewModel) {
+    // Observamos la lista de productos del ViewModel.
+    // collectAsState() asegura que la UI se recomponga cuando la lista cambie.
+    val cartItems by cartViewModel.cartItems.collectAsState()
     val pastelBackground = Color(0xFFFFF8F0)
-    val pastelCard = Color(0xFFFFE0E0)
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(pastelBackground)
-    ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Mi Carrito", color = Color.White) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF6D4C41))
+            )
+        },
+        containerColor = pastelBackground
+    ) { padding ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .fillMaxSize()
+                .padding(padding)
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(containerColor = pastelCard),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+            if (cartItems.isEmpty()) {
+                // Mensaje si el carrito está vacío
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = "Carrito vacío",
-                        modifier = Modifier.size(64.dp),
-                        tint = Color(0xFF5D4037)
-                    )
-
-                    Text(
-                        text = "Tu carrito está vacío",
-                        fontSize = 24.sp,
-                        textAlign = TextAlign.Center,
-                        color = Color(0xFF5D4037)
-                    )
-                    
-                    Text(
-                        text = "Parece que aún no has agregado productos a tu carrito",
-                        textAlign = TextAlign.Center,
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Button(
-                        onClick = { 
-                            navController.navigate("home/guest?fromCart=true") {
-                                popUpTo("carrito") { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(0.7f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFFCCBC),
-                            contentColor = Color(0xFF5D4037)
-                        )
-                    ) {
-                        Text("Ver catálogo")
+                    Text("Tu carrito está vacío", style = MaterialTheme.typography.titleLarge)
+                }
+            } else {
+                // Lista de productos en el carrito
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(cartItems) { product ->
+                        CartItem(product = product)
                     }
                 }
+                // Resumen del total y botón de pago
+                CartSummary(total = cartViewModel.getTotalPrice())
+            }
+        }
+    }
+}
+
+@Composable
+fun CartItem(product: Producto) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = product.imagenResId),
+                contentDescription = product.nombre,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(product.nombre, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("${product.precio} CLP", color = Color.Gray, fontSize = 16.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun CartSummary(total: Double) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Total:", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("${total.toInt()} CLP", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5D4037))
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { /* TODO: Lógica para proceder al pago */ },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6D4C41))
+            ) {
+                Text("Proceder al Pago", modifier = Modifier.padding(8.dp), fontSize = 16.sp)
             }
         }
     }

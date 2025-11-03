@@ -9,11 +9,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+// Import the viewModel function
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectologin006d_final.ui.camera.TomarFotoScreen
 import com.example.proyectologin006d_final.ui.login.LoginScreen
 import com.example.proyectologin006d_final.view.MainScreen
 import com.example.proyectologin006d_final.view.ProductoFormScreen
 import com.example.proyectologin006d_final.ui.carrito.CarritoScreen
+// Make sure to import your CartViewModel
+import com.example.proyectologin006d_final.viewmodel.CartViewModel
 
 @Composable
 fun AppNav(startDestination: String) {
@@ -60,7 +64,10 @@ fun AppNav(startDestination: String) {
 
         // --- Pantalla del Carrito ---
         composable(route = "carrito") {
-            CarritoScreen(navController = navController)
+            // Instantiate the ViewModel using the viewModel() function. [3, 8]
+            val cartViewModel: CartViewModel = viewModel()
+            // Pass the created ViewModel to your screen.
+            CarritoScreen(navController = navController, cartViewModel = cartViewModel)
         }
     }
 }
