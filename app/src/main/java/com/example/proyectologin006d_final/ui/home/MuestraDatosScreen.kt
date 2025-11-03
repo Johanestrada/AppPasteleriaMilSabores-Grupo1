@@ -11,6 +11,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.proyectologin006d_final.viewmodel.CartViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectologin006d_final.ui.home.ProductosDestacados
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +42,8 @@ fun MuestraDatosScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val cartViewModel: CartViewModel = viewModel()
+            ProductosDestacados(navController = navController, cartViewModel = cartViewModel)
             Text(
                 text = "Bienvenido, $username 👋",
                 style = MaterialTheme.typography.headlineMedium.copy(
