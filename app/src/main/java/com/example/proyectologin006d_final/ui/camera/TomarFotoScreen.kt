@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,8 +33,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
-
-import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavController
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -42,6 +41,8 @@ fun TomarFotoScreen(navController: NavController) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraController = remember { LifecycleCameraController(context) }
+
+    // Gestión de Permisos: Se usa Accompanist para el permiso de la cámara.
     val permissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
 
     LaunchedEffect(Unit) {
@@ -63,6 +64,7 @@ fun TomarFotoScreen(navController: NavController) {
             IconButton(
                 onClick = {
                     takePhoto(context, cameraController) { uri ->
+                        // Devolución de la URI: Se devuelve la URI a la pantalla anterior.
                         navController.previousBackStackEntry
                             ?.savedStateHandle
                             ?.set("photo_uri", uri)
@@ -90,6 +92,8 @@ private fun takePhoto(
 ) {
     val file = createImageFile(context)
     val outputDirectory = ImageCapture.OutputFileOptions.Builder(file).build()
+
+    // API Nativa: Se llama a la API de CameraX para capturar la imagen.
     cameraController.takePicture(
         outputDirectory,
         ContextCompat.getMainExecutor(context),
@@ -101,7 +105,7 @@ private fun takePhoto(
             }
 
             override fun onError(exception: ImageCaptureException) {
-                // Handle error
+                // Manejo de errores.
             }
         }
     )

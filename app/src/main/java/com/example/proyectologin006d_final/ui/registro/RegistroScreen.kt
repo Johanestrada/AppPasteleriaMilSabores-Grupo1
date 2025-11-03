@@ -30,148 +30,134 @@ import java.util.*
 @Composable
 fun RegistroScreen(
     navController: NavController,
+    // Arquitectura: La vista recibe el ViewModel, que centraliza la lógica.
     registroViewModel: RegistroViewModel = viewModel()
 ) {
+    // Gestión de Estado: La UI consume el estado (uiState) del ViewModel.
     val uiState by registroViewModel.uiState.collectAsState()
 
     val pastelBackground = Color(0xFFFFF8F0)
     val pastelAccent = Color(0xFFFFCCBC)
     val pastelText = Color(0xFF5D4037)
 
-    // Navegar hacia atrás si el registro fue exitoso
+    // Navegación basada en estado: Reacciona a un cambio en el estado para navegar.
     LaunchedEffect(uiState.registroExitoso) {
         if (uiState.registroExitoso) {
             navController.popBackStack()
         }
     }
 
-    MaterialTheme(
-        colorScheme = lightColorScheme(
-            primary = pastelAccent,
-            onPrimary = Color.White,
-            background = pastelBackground,
-            surface = pastelBackground,
-            onSurface = pastelText
-        )
-    ) {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text("Formulario de Registro", color = MaterialTheme.colorScheme.onPrimary) },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.Filled.ArrowBack,
-                                contentDescription = "Volver atrás",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = pastelAccent)
-                )
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Formulario de Registro") },
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.Filled.ArrowBack, "Volver") } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = pastelAccent)
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
+
+            OutlinedTextField(
+                value = uiState.nombreCompleto,
+                // Lógica de Validación: Cada cambio llama al ViewModel, que ejecuta la validación.
+                onValueChange = { registroViewModel.onNombreChange(it) },
+                label = { Text("Nombre Completo") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                // El error se muestra según el estado que provee el ViewModel.
+                isError = uiState.errorNombre != null,
+                supportingText = { if (uiState.errorNombre != null) Text(uiState.errorNombre!!) }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            DatePickerField(
+                fechaSeleccionada = uiState.fechaNacimiento,
+                onFechaSeleccionada = { registroViewModel.onFechaNacimientoChange(it) }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = uiState.correo,
+                onValueChange = { registroViewModel.onCorreoChange(it) },
+                label = { Text("Correo Electrónico") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                singleLine = true,
+                isError = uiState.errorCorreo != null,
+                supportingText = { if (uiState.errorCorreo != null) Text(uiState.errorCorreo!!) }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = uiState.contrasena,
+                onValueChange = { registroViewModel.onContrasenaChange(it) },
+                label = { Text("Contraseña") },
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                singleLine = true,
+                isError = uiState.errorContrasena != null,
+                supportingText = { if (uiState.errorContrasena != null) Text(uiState.errorContrasena!!) }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = uiState.confirmarContrasena,
+                onValueChange = { registroViewModel.onConfirmarContrasenaChange(it) },
+                label = { Text("Confirmar Contraseña") },
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                singleLine = true,
+                isError = uiState.errorConfirmarContrasena != null,
+                supportingText = { if (uiState.errorConfirmarContrasena != null) Text(uiState.errorConfirmarContrasena!!) }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = uiState.telefono,
+                onValueChange = { registroViewModel.onTelefonoChange(it) },
+                label = { Text("Teléfono (Opcional)") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            RegionComunaDropDowns(viewModel = registroViewModel)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = uiState.codigoDescuento,
+                onValueChange = { registroViewModel.onCodigoDescuentoChange(it) },
+                label = { Text("Código de Descuento (Opcional)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = { registroViewModel.registrarUsuario() },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+                colors = ButtonDefaults.buttonColors(containerColor = pastelAccent)
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
-
-                OutlinedTextField(
-                    value = uiState.nombreCompleto,
-                    onValueChange = { registroViewModel.onNombreChange(it) },
-                    label = { Text("Nombre Completo") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    isError = uiState.errorNombre != null,
-                    supportingText = { if (uiState.errorNombre != null) Text(uiState.errorNombre!!) }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                DatePickerField(
-                    fechaSeleccionada = uiState.fechaNacimiento,
-                    onFechaSeleccionada = { registroViewModel.onFechaNacimientoChange(it) }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = uiState.correo,
-                    onValueChange = { registroViewModel.onCorreoChange(it) },
-                    label = { Text("Correo Electrónico") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    singleLine = true,
-                    isError = uiState.errorCorreo != null,
-                    supportingText = { if (uiState.errorCorreo != null) Text(uiState.errorCorreo!!) }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = uiState.contrasena,
-                    onValueChange = { registroViewModel.onContrasenaChange(it) },
-                    label = { Text("Contraseña") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true,
-                    isError = uiState.errorContrasena != null,
-                    supportingText = { if (uiState.errorContrasena != null) Text(uiState.errorContrasena!!) }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = uiState.confirmarContrasena,
-                    onValueChange = { registroViewModel.onConfirmarContrasenaChange(it) },
-                    label = { Text("Confirmar Contraseña") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true,
-                    isError = uiState.errorConfirmarContrasena != null,
-                    supportingText = { if (uiState.errorConfirmarContrasena != null) Text(uiState.errorConfirmarContrasena!!) }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = uiState.telefono,
-                    onValueChange = { registroViewModel.onTelefonoChange(it) },
-                    label = { Text("Teléfono (Opcional)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                RegionComunaDropDowns(viewModel = registroViewModel)
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = uiState.codigoDescuento,
-                    onValueChange = { registroViewModel.onCodigoDescuentoChange(it) },
-                    label = { Text("Código de Descuento (Opcional)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = { registroViewModel.registrarUsuario() },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !uiState.isLoading, // Deshabilitar si está cargando
-                    colors = ButtonDefaults.buttonColors(containerColor = pastelAccent)
-                ) {
-                    if (uiState.isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
-                    } else {
-                        Text("Registrarse")
-                    }
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                } else {
+                    Text("Registrarse")
                 }
-                Spacer(modifier = Modifier.height(16.dp))
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -187,8 +173,7 @@ fun DatePickerField(
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            val monthFormatted = month + 1
-            onFechaSeleccionada("$dayOfMonth/$monthFormatted/$year")
+            onFechaSeleccionada("$dayOfMonth/${month + 1}/$year")
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
@@ -200,16 +185,8 @@ fun DatePickerField(
         onValueChange = {},
         label = { Text("Fecha de Nacimiento") },
         readOnly = true,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { datePickerDialog.show() },
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Default.DateRange,
-                contentDescription = "Seleccionar Fecha",
-                modifier = Modifier.clickable { datePickerDialog.show() }
-            )
-        }
+        modifier = Modifier.fillMaxWidth().clickable { datePickerDialog.show() },
+        trailingIcon = { Icon(Icons.Default.DateRange, "Seleccionar Fecha", modifier = Modifier.clickable { datePickerDialog.show() }) }
     )
 }
 
@@ -221,26 +198,16 @@ fun RegionComunaDropDowns(viewModel: RegistroViewModel) {
     var regionExpanded by remember { mutableStateOf(false) }
     var comunaExpanded by remember { mutableStateOf(false) }
 
-    ExposedDropdownMenuBox(
-        expanded = regionExpanded,
-        onExpandedChange = { regionExpanded = !regionExpanded },
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    ExposedDropdownMenuBox(expanded = regionExpanded, onExpandedChange = { regionExpanded = !regionExpanded }) {
         OutlinedTextField(
             value = uiState.region,
             onValueChange = {},
             readOnly = true,
             label = { Text("Región") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = regionExpanded) },
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth()
+            modifier = Modifier.menuAnchor().fillMaxWidth()
         )
-
-        ExposedDropdownMenu(
-            expanded = regionExpanded,
-            onDismissRequest = { regionExpanded = false }
-        ) {
+        ExposedDropdownMenu(expanded = regionExpanded, onDismissRequest = { regionExpanded = false }) {
             viewModel.regiones.forEach { regionSeleccionada ->
                 DropdownMenuItem(
                     text = { Text(regionSeleccionada) },
@@ -255,15 +222,7 @@ fun RegionComunaDropDowns(viewModel: RegistroViewModel) {
 
     Spacer(modifier = Modifier.height(8.dp))
 
-    ExposedDropdownMenuBox(
-        expanded = comunaExpanded,
-        onExpandedChange = {
-            if (comunas.isNotEmpty()) {
-                comunaExpanded = !comunaExpanded
-            }
-        },
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    ExposedDropdownMenuBox(expanded = comunaExpanded, onExpandedChange = { if (comunas.isNotEmpty()) comunaExpanded = !comunaExpanded }) {
         OutlinedTextField(
             value = uiState.comuna,
             onValueChange = {},
@@ -271,15 +230,9 @@ fun RegionComunaDropDowns(viewModel: RegistroViewModel) {
             label = { Text("Comuna") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = comunaExpanded) },
             enabled = comunas.isNotEmpty(),
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth()
+            modifier = Modifier.menuAnchor().fillMaxWidth()
         )
-
-        ExposedDropdownMenu(
-            expanded = comunaExpanded,
-            onDismissRequest = { comunaExpanded = false }
-        ) {
+        ExposedDropdownMenu(expanded = comunaExpanded, onDismissRequest = { comunaExpanded = false }) {
             comunas.forEach { comunaSeleccionada ->
                 DropdownMenuItem(
                     text = { Text(comunaSeleccionada) },

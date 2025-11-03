@@ -35,10 +35,14 @@ import com.example.proyectologin006d_final.util.SessionManager
 @Composable
 fun PerfilScreen(mainNavController: NavController) {
     val viewModel: PerfilViewModel = viewModel()
+
+    // Gestión de estado: La UI consume el estado del ViewModel.
     val usuario by viewModel.user.collectAsStateWithLifecycle()
     val photoUri by viewModel.photoUri.collectAsStateWithLifecycle()
 
     val navBackStackEntry = mainNavController.currentBackStackEntry
+
+    // Recurso Nativo: Escucha el resultado de la cámara.
     LaunchedEffect(navBackStackEntry) {
         val uri = navBackStackEntry?.savedStateHandle?.get<Uri>("photo_uri")
         uri?.let {
@@ -50,12 +54,13 @@ fun PerfilScreen(mainNavController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFFF8F0)), // Fondo pastel
+            .background(Color(0xFFFFF8F0)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ProfileHeader(
             usuario = usuario,
             photoUri = photoUri,
+            // Inicia el flujo del recurso nativo (cámara).
             onImageClick = { mainNavController.navigate("tomar_foto") }
         )
 
@@ -81,6 +86,7 @@ fun ProfileHeader(usuario: Usuario?, photoUri: Uri?, onImageClick: () -> Unit) {
             .clickable(onClick = onImageClick),
         contentAlignment = Alignment.Center
     ) {
+        // Carga la imagen desde la URI que entrega la cámara.
         AsyncImage(
             model = photoUri,
             contentDescription = "Foto de perfil",
@@ -106,6 +112,7 @@ fun ProfileHeader(usuario: Usuario?, photoUri: Uri?, onImageClick: () -> Unit) {
     )
 }
 
+// Organización: Componente modular para la info del usuario.
 @Composable
 fun UserInfoSection(usuario: Usuario?) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
@@ -117,6 +124,7 @@ fun UserInfoSection(usuario: Usuario?) {
         UserInfoRow(
             icon = Icons.Default.LocationOn,
             label = "Dirección",
+            // Validación en UI: Se manejan datos nulos para evitar errores.
             value = usuario?.let { "${it.comuna}, ${it.region}" } ?: "No especificada"
         )
         UserInfoRow(
@@ -127,6 +135,7 @@ fun UserInfoSection(usuario: Usuario?) {
     }
 }
 
+// Organización: Componente reutilizable para mostrar un dato.
 @Composable
 fun UserInfoRow(icon: ImageVector, label: String, value: String) {
     Row(
@@ -164,13 +173,14 @@ fun LogoutButton(navController: NavController) {
     Button(
         onClick = {
             SessionManager.clearSession(context)
+            // Navegación segura: Limpia la pila para que no se pueda volver.
             navController.navigate("login") { popUpTo(0) }
         },
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFE57373), // Un rojo más suave
+            containerColor = Color(0xFFE57373),
             contentColor = Color.White
         ),
         shape = RoundedCornerShape(12.dp)
