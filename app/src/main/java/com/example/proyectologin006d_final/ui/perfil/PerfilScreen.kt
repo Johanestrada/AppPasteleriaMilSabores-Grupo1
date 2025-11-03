@@ -7,14 +7,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -58,7 +61,7 @@ fun PerfilScreen(mainNavController: NavController) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        ProfileMenu()
+        UserInfoSection(usuario = usuario)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -67,7 +70,7 @@ fun PerfilScreen(mainNavController: NavController) {
 }
 
 @Composable
-fun ProfileHeader(usuario: Usuario?, photoUri: String?, onImageClick: () -> Unit) {
+fun ProfileHeader(usuario: Usuario?, photoUri: Uri?, onImageClick: () -> Unit) {
     Spacer(modifier = Modifier.height(48.dp))
 
     Box(
@@ -104,29 +107,56 @@ fun ProfileHeader(usuario: Usuario?, photoUri: String?, onImageClick: () -> Unit
 }
 
 @Composable
-fun ProfileMenu() {
+fun UserInfoSection(usuario: Usuario?) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-        ProfileMenuItem(text = "Editar Perfil") { /* TODO */ }
-        ProfileMenuItem(text = "Mis Pedidos") { /* TODO */ }
-        ProfileMenuItem(text = "Mis Direcciones") { /* TODO */ }
-        ProfileMenuItem(text = "Métodos de Pago") { /* TODO */ }
+        UserInfoRow(
+            icon = Icons.Default.Phone,
+            label = "Teléfono",
+            value = usuario?.telefono ?: "No especificado"
+        )
+        UserInfoRow(
+            icon = Icons.Default.LocationOn,
+            label = "Dirección",
+            value = usuario?.let { "${it.comuna}, ${it.region}" } ?: "No especificada"
+        )
+        UserInfoRow(
+            icon = Icons.Default.Email,
+            label = "Correo",
+            value = usuario?.correo ?: "No especificado"
+        )
     }
 }
 
 @Composable
-fun ProfileMenuItem(text: String, onClick: () -> Unit) {
+fun UserInfoRow(icon: ImageVector, label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 16.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = text, fontSize = 18.sp, modifier = Modifier.weight(1f))
-        Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = Color.Gray)
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = Color.Gray
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
+            Text(
+                text = value,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
     Divider()
 }
+
 
 @Composable
 fun LogoutButton(navController: NavController) {
@@ -140,8 +170,8 @@ fun LogoutButton(navController: NavController) {
             .fillMaxWidth()
             .padding(16.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFFFF0F0),
-            contentColor = Color.Red
+            containerColor = Color(0xFFE57373), // Un rojo más suave
+            contentColor = Color.White
         ),
         shape = RoundedCornerShape(12.dp)
     ) {

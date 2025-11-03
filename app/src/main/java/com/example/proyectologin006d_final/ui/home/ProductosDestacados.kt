@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -17,10 +18,12 @@ import com.example.proyectologin006d_final.viewmodel.CartViewModel
 
 @Composable
 fun ProductosDestacados(navController: NavController, cartViewModel: CartViewModel) {
+    val pastelAccent = Color(0xFFFFCCBC)
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Productos Destacados",
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold, color = pastelAccent),
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
         )
         val productosDestacados = listOf(

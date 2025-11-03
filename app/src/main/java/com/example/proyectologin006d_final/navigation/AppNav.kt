@@ -30,7 +30,7 @@ fun AppNav(startDestination: String) {
         }
 
         composable(route = "tomar_foto") {
-            TomarFotoScreen { navController.popBackStack() }
+            TomarFotoScreen(navController = navController)
         }
 
         composable(route = "home/{username}?fromCart={fromCart}" /*...*/) { backStackEntry ->

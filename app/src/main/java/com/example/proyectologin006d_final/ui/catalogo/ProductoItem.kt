@@ -30,7 +30,7 @@ fun ProductoItem(producto: Producto, cartViewModel: CartViewModel) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFCCBC))
     ) {
         Column {
             Image(

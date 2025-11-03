@@ -34,10 +34,11 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun TomarFotoScreen(onPhotoTaken: (Uri) -> Unit) {
+fun TomarFotoScreen(navController: NavController) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraController = remember { LifecycleCameraController(context) }
@@ -62,7 +63,10 @@ fun TomarFotoScreen(onPhotoTaken: (Uri) -> Unit) {
             IconButton(
                 onClick = {
                     takePhoto(context, cameraController) { uri ->
-                        onPhotoTaken(uri)
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("photo_uri", uri)
+                        navController.popBackStack()
                     }
                 },
                 modifier = Modifier

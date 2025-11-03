@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items // <-- IMPORTACIÓN AÑADIDA
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -55,7 +56,7 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mil Sabores") },
+                title = { SearchBar() },
                 actions = {
                     IconButton(onClick = { /* TODO: Lista de deseos */ }) {
                         Icon(Icons.Default.FavoriteBorder, contentDescription = "Lista de Deseos")
@@ -89,6 +90,38 @@ fun MainScreen(
                 PerfilScreen(mainNavController = mainNavController)
             }
         }
+    }
+}
+
+@Composable
+fun SearchBar() {
+    var text by remember { mutableStateOf("") }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = "Buscar",
+            tint = Color.Gray
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        BasicTextField(
+            value = text,
+            onValueChange = { text = it },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            decorationBox = { innerTextField ->
+                if (text.isEmpty()) {
+                    Text("Buscar producto", color = Color.Gray)
+                }
+                innerTextField()
+            }
+        )
     }
 }
 
