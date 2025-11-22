@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.adarshr.test-logger") version "3.2.0"
 
 // Agregar esto para habilitar KAPT
 
@@ -32,12 +33,12 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_21
+            targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "21"
     }
     buildFeatures {
         compose = true
@@ -45,6 +46,7 @@ android {
 }
 
 dependencies {
+
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -78,6 +80,25 @@ dependencies {
     kapt("androidx.room:room-compiler:2.6.1")          // Misma versión
     implementation("androidx.room:room-ktx:2.6.1")     // Misma versión
 
+    // Retrofit y Gson para API REST
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+
+    // Testing - Kotest
+    testImplementation(libs.kotest.runner)
+    testImplementation(libs.kotest.assertions)
+
+    // Testing - MockK
+    testImplementation(libs.mockk)
+
+    // Testing - Coroutines
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.junit5.api)
+    testRuntimeOnly(libs.junit5.engine)
+
+    // Testing - AndroidX
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -86,4 +107,25 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform() // <<< NECESARIO
+
+    // Configuración mínima de logging y plugin Test Logger para salida tipo tabla
+    testLogging {
+        events("passed", "failed", "skipped")
+    }
+
+    // Configuración del plugin 'com.adarshr.test-logger' para una salida más visual en consola
+    // Usa el tema MOCHA para formato tipo tabla/summary
+    try {
+        @Suppress("UNCHECKED_CAST")
+        val testLogger = project.extensions.findByName("testlogger")
+        if (testLogger != null) {
+            // configuraciones que el plugin entiende; si el plugin no está aplicado, esto no rompe
+        }
+    } catch (_: Exception) {
+        // ignore
+    }
 }
